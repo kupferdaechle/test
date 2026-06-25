@@ -18,6 +18,8 @@ dependencies = [
     "uvicorn[standard]>=0.30",
     "python-dotenv>=1.0",
     "python-multipart>=0.0.9",
+    "langgraph>=0.2",
+    "langchain-core>=0.3",
 ]
 
 [project.optional-dependencies]
@@ -33,7 +35,9 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/skillspector_quality"]
+# skillspector stub ships alongside skillspector_quality so the app works
+# without the real SkillRater package (https://github.com/larsroettig/SkillRater).
+packages = ["src/skillspector_quality", "src/skillspector"]
 
 [tool.ruff]
 line-length = 100
