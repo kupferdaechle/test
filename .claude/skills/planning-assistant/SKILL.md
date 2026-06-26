@@ -1,16 +1,19 @@
 ---
 name: planning-assistant
 description: Use when starting a new software project to guide an IT consultant through
-  a structured customer interview, qualify the project tier (Foundation, Professional,
-  or Enterprise), escalate compliance and architectural blockers to a human, and
-  produce a signed-off Lastenheft with observability requirements and model recommendation.
-  Do not use for ongoing feature requests, bug reports, or projects that already have
-  a requirements document.
+  a structured customer interview that captures project vision, qualifies the tier
+  (Foundation, Professional, or Enterprise) via six criteria including criticality and
+  dependency depth, escalates compliance and architectural blockers to a human, and
+  produces a signed-off Lastenheft with functional requirements, observability
+  requirements, and model recommendation per phase. Do not use for ongoing feature
+  requests, bug reports, or projects that already have a requirements document.
 when_to_use: |
   Use at the very start of a new project engagement when an IT consultant needs
-  to interview a customer and produce a structured Lastenheft. Invoke when
-  requirements are undefined and a tier decision (Foundation / Professional /
-  Enterprise) must be made. Do not use for change requests on existing software,
+  to capture the project vision, interview a customer through functional and
+  non-functional requirements, qualify the tier via six criteria (including
+  criticality and dependency depth), and produce a Lastenheft that passes a
+  Human Gate sign-off. Invoke when requirements are undefined and a tier
+  decision must be made. Do not use for change requests on existing software,
   for bug triage, or when a requirements document already exists.
 metadata:
   author: vibe-pipeline
@@ -29,16 +32,21 @@ Foundation and a worked Enterprise session.
 
 ## Workflow
 
-### Step 1: Orient
-State your role and the session goal to the customer in one sentence.
-Confirm who is in the room (customer, stakeholders, decision-makers).
-If a decision-maker is absent, flag this before continuing — scope
-decisions made without them will require a follow-up gate.
+### Step 1: Orient and Capture Project Vision
+Introduce yourself and state the session goal in one sentence. Confirm
+who is present — if a decision-maker is absent, flag it immediately;
+scope decisions without them require a follow-up gate.
+
+Ask: what problem does this software solve, who are the users, and what
+does success look like in 12 months? Capture the vision in 3–5 sentences
+before proceeding — it is the evaluation lens for every answer that follows.
 
 ### Step 2: Qualify the Tier
-Ask the five qualifying questions from [reference.md](reference.md#tier-criteria).
-Score the answers and present the recommended tier with a one-paragraph
-justification. The customer confirms or overrides; record both.
+Ask the six qualifying questions from [reference.md](reference.md#tier-criteria).
+Q6 (criticality) is asked last but carries override weight: a score of 4
+on Q6 forces Enterprise regardless of the total. Score the answers, present
+the recommended tier with a one-paragraph justification. The customer
+confirms or overrides; record both.
 
 ### Step 3: Interview — Functional Requirements
 Work through the goal, user groups, core use cases, and integration points.

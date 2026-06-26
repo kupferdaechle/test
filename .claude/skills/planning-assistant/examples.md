@@ -1,7 +1,7 @@
 # Examples
 
-Worked sessions showing the two most important behavioral patterns:
-a happy-path Foundation session and an Enterprise escalation.
+Worked sessions showing three behavioral patterns: a happy-path Foundation
+session, a Q6-driven Enterprise override, and a compliance escalation.
 
 ## Example 1: Foundation Tier — Internes Team-Tool
 
@@ -45,7 +45,32 @@ Output (Lastenheft-Auszug):
 - [x] Offene Punkte: keine
 ```
 
-## Example 2: Enterprise Eskalation — Compliance-Trigger mid-Interview
+## Example 2: Q6 Override — Foundational Infrastructure forces Enterprise
+
+Input:
+```text
+Qualifying Score after Q1–Q5: 11 → Professional empfohlen.
+Q6: "Wie viele Projekte hängen von dem ab, was wir heute bauen?"
+Kunde: "Das sind die Basis-Skills für alle zukünftigen Projekte.
+Alles was wir danach bauen baut darauf auf."
+```
+
+Output (Q6 Override):
+```text
+Q6 Score: 4 — Foundational Infrastructure.
+
+Override aktiv: Q6 = 4 erzwingt Enterprise unabhängig vom Gesamtscore.
+
+Begründung: Ein Breaking Change in foundational Skills bricht nicht ein
+Projekt — er bricht alle zukünftigen Projekte. Das erfordert Enterprise-
+Rigor: Quality Gate 90+, Versioning, Backward Compatibility, vollständige
+Dokumentation, formales Change Management.
+
+Empfehlung: Enterprise (Override, nicht Score-basiert).
+Modell-Empfehlung: Opus für Architektur-Phase.
+```
+
+## Example 3: Enterprise Eskalation — Compliance-Trigger mid-Interview
 
 Input:
 ```text

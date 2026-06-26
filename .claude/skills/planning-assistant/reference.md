@@ -2,8 +2,9 @@
 
 ## Tier Criteria
 
-Ask these five qualifying questions in order. Score each answer, sum the points,
-and map the total to a tier recommendation.
+Ask these six qualifying questions in order. Score each answer, sum the points,
+and map the total to a tier recommendation. Q6 carries override weight — a score
+of 4 on Q6 forces Enterprise regardless of the total score.
 
 ### Qualifying Questions
 
@@ -42,13 +43,25 @@ How many external systems must this software integrate with?
 - Five to ten → 3
 - More than ten or real-time event-driven integrations → 4
 
+**Q6 — Criticality and Dependency Depth**
+How many other projects or systems will depend on what we are building today?
+- This is an isolated project, nothing else depends on it → 1
+- One or two follow-up projects will build on this → 2
+- Several projects will use this as a component → 3
+- This is foundational infrastructure — all future projects depend on it → 4
+
+A score of 4 on Q6 forces Enterprise regardless of the total. Record this
+override explicitly in the Lastenheft with the justification.
+
 ### Tier Mapping
 
 | Total Score | Tier | Architecture |
 |---|---|---|
-| 5–9 | **Foundation** | Monolith or 2–3 services, no Event Storming required |
-| 10–14 | **Professional** | Microservices, DDD-lite, Contract-First |
-| 15–20 | **Enterprise** | Full pipeline, formal Event Storming, compliance hardening |
+| 6–10 | **Foundation** | Monolith or 2–3 services, no Event Storming required |
+| 11–17 | **Professional** | Microservices, DDD-lite, Contract-First |
+| 18–24 | **Enterprise** | Full pipeline, formal Event Storming, compliance hardening |
+
+**Override rule:** Q6 = 4 → Enterprise always, regardless of total score.
 
 If the customer overrides the recommendation to a lower tier, record the override
 and the justification. Add a risk statement to the Lastenheft.
