@@ -68,6 +68,31 @@ and the justification. Add a risk statement to the Lastenheft.
 
 ---
 
+## Capture Checklist
+
+This is the structure the conversation must satisfy — not a script to read aloud.
+Steer the dialogue with open questions and follow-ups; tick each item only once
+the customer has genuinely answered it. An unticked item at the end of an
+interview is an open point, not a skipped one.
+
+### Functional (Step 3)
+- [ ] **Goal** — the problem solved, stated in the customer's own words
+- [ ] **User groups** — who acts on the system and in what role
+- [ ] **Core use cases** — the three to five flows that define success
+- [ ] **Inputs and outputs** — what data enters, what the system produces
+- [ ] **Integration points** — external systems and the direction of each call
+- [ ] **Out of scope** — what this software explicitly does not do
+
+### Non-Functional (Step 4)
+- [ ] **Performance** — latency or throughput targets, if any are measurable
+- [ ] **Availability** — uptime expectation and tolerance for downtime
+- [ ] **Security** — authentication, authorization, and data protection needs
+- [ ] **Compliance** — regulations in scope (escalate per the trigger table)
+- [ ] **Observability** — tracing, metrics, and logging (mandatory, all tiers)
+- [ ] **Maintainability** — who maintains it and the expected change cadence
+
+---
+
 ## Escalation Triggers
 
 Escalate immediately and pause the interview when any of the following fire.

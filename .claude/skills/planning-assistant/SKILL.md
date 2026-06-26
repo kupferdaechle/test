@@ -1,20 +1,18 @@
 ---
 name: planning-assistant
 description: Use when starting a new software project to guide an IT consultant through
-  a structured customer interview that captures project vision, qualifies the tier
-  (Foundation, Professional, or Enterprise) via six criteria including criticality and
-  dependency depth, escalates compliance and architectural blockers to a human, and
-  produces a signed-off Lastenheft with functional requirements, observability
-  requirements, and model recommendation per phase. Do not use for ongoing feature
-  requests, bug reports, or projects that already have a requirements document.
+  a consultative customer interview that captures project vision, works a functional and
+  non-functional capture checklist, qualifies the tier (Foundation, Professional, or
+  Enterprise) via six criteria including criticality and dependency depth, escalates
+  compliance and architectural blockers to a human, and produces a signed-off Lastenheft
+  with observability requirements and a per-phase model recommendation. Do not use for
+  ongoing feature requests, bug reports, or projects with an existing requirements document.
 when_to_use: |
-  Use at the very start of a new project engagement when an IT consultant needs
-  to capture the project vision, interview a customer through functional and
-  non-functional requirements, qualify the tier via six criteria (including
-  criticality and dependency depth), and produce a Lastenheft that passes a
-  Human Gate sign-off. Invoke when requirements are undefined and a tier
-  decision must be made. Do not use for change requests on existing software,
-  for bug triage, or when a requirements document already exists.
+  Use at the start of a new project when an IT consultant must capture the vision,
+  run a consultative interview across functional and non-functional requirements,
+  qualify the tier via six criteria, and produce a Lastenheft that passes a Human
+  Gate. Invoke when requirements are undefined and a tier decision is needed. Do
+  not use for change requests, bug triage, or when a requirements document exists.
 metadata:
   author: vibe-pipeline
   version: 1.0.0
@@ -49,15 +47,23 @@ the recommended tier with a one-paragraph justification. The customer
 confirms or overrides; record both.
 
 ### Step 3: Interview — Functional Requirements
-Work through the goal, user groups, core use cases, and integration points.
-Ask one topic at a time. After each answer, reflect it back in one sentence
-and ask whether it is complete. Do not move on until the customer confirms.
+Consult, do not interrogate. Open with one broad invitation — "walk me through
+what this software does and who relies on it" — then listen. A good answer
+yields goals, users, and use cases on its own. Ask follow-ups only to fill
+the gaps you actually hear, never from a fixed script.
+
+Drive toward completeness against the functional capture checklist in
+[reference.md](reference.md#capture-checklist), not toward a question list.
+Reflect each captured item back in one line and confirm it before moving on.
 
 ### Step 4: Interview — Non-Functional Requirements
-Cover performance, availability, security, compliance, and observability.
-Observability is mandatory for all tiers — capture tracing, metrics, and
-logging expectations explicitly. If the customer says "we'll handle it later",
-escalate: observability retrofitted after go-live costs 3× more.
+Surface the quality attributes the customer rarely volunteers: performance,
+availability, security, compliance, and observability. Probe these only where
+the functional answers imply a constraint, so the conversation stays natural.
+
+Observability is mandatory for every tier — capture tracing, metrics, and
+logging expectations explicitly. If the customer defers it ("we'll handle it
+later"), escalate: retrofitting observability after go-live costs 3× more.
 
 ### Step 5: Detect Gaps and Escalate
 After each major section, check the gap list in
