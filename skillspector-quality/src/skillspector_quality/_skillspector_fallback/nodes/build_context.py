@@ -9,7 +9,7 @@ from typing import Any
 
 import yaml
 
-from skillspector.state import SkillspectorState
+from ..state import SkillspectorState
 
 logger = logging.getLogger(__name__)
 

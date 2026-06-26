@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from skillspector.state import MetaAnalyzerResponse, SkillspectorState
+from ..state import MetaAnalyzerResponse, SkillspectorState
 
 
 def meta_analyzer(state: SkillspectorState) -> MetaAnalyzerResponse:

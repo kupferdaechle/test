@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from skillspector.state import SkillspectorState
+from ..state import SkillspectorState
 
 _SEV_SCORE: dict[str, int] = {"critical": 100, "high": 75, "medium": 40, "low": 10, "info": 0}
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from skillspector.state import SkillspectorState
+from ..state import SkillspectorState
 
 logger = logging.getLogger(__name__)
 

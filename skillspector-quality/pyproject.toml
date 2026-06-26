@@ -38,9 +38,10 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-# skillspector stub ships alongside skillspector_quality so the app works
-# without the real SkillRater package (https://github.com/larsroettig/SkillRater).
-packages = ["src/skillspector_quality", "src/skillspector"]
+# The skillspector fallback now lives inside the skillspector_quality package
+# (_skillspector_fallback/) and is registered at runtime only when the real
+# SkillRater package is absent (https://github.com/larsroettig/SkillRater).
+packages = ["src/skillspector_quality"]
 
 [tool.ruff]
 line-length = 100

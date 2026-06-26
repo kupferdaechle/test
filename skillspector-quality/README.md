@@ -136,6 +136,29 @@ python -m skillspector_quality scan ./my-skill/ --format json
 python -m skillspector_quality scan ./my-skill/ --min-score 70    # exit 1 if score < 70
 ```
 
+### Deploying this bundle (web UI + full security scan)
+
+This repository ships the quality scorer, the FastAPI **web UI** (`webapp/`), the CI gate,
+and a bundled `skillspector` **fallback** so the app runs even before SkillRater is present.
+
+```bash
+# One command: download SkillRater, build a Python 3.13 venv, install everything.
+scripts/setup_skillspector.sh
+
+source .venv/bin/activate
+python -m webapp.server          # http://127.0.0.1:8000  (drag in a skill folder or .zip)
+```
+
+Two run modes, selected automatically at import time:
+
+| Mode | When | Security scan | Quality / tokens / triggerability |
+|---|---|---|---|
+| **Full** | real [SkillRater](https://github.com/larsroettig/SkillRater) installed (Python 3.12–3.13) | 20 analyzers, real findings + risk score | ✅ |
+| **Fallback** | SkillRater absent (e.g. Python 3.11) | no-op (0 findings, risk 0) | ✅ |
+
+`skillspector_quality.SKILLSPECTOR_IS_FALLBACK` reports which mode is active. The fallback
+never shadows a real install — when SkillRater is importable, it is used unchanged.
+
 Sample terminal output:
 
 ```
