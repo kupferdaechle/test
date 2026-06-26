@@ -1,12 +1,12 @@
 ---
 name: contract-manager
-description: Use after architecture-decomposition to define and freeze the API contracts
-  between services before any coding begins. Writes an OpenAPI specification for each
-  synchronous dependency and an AsyncAPI specification for each event, defines shared data
-  models, verifies every acceptance criterion maps to an operation, then freezes the
-  specifications under a version tag so parallel coding agents build against a stable
-  interface. Escalates any post-freeze breaking change to a human. Do not use before service
-  boundaries exist, for internal function signatures, or to write implementation code.
+description: Use after architecture-decomposition to define and freeze each service's API
+  contracts before any coding begins — both its public API and its inter-service edges. Writes
+  an OpenAPI specification for public operations and synchronous dependencies, an AsyncAPI
+  specification for each event, defines shared data models, verifies every acceptance criterion
+  maps to an operation, then freezes the specifications under a version tag so parallel coding
+  agents build against a stable interface. Escalates any post-freeze breaking change to a human.
+  Do not use before service boundaries exist, for internal function signatures, or to write code.
 when_to_use: |
   Use in Phase 2, after services and their dependencies are defined, to author and freeze
   the inter-service API specifications. Invoke when contracts must be stable before parallel
@@ -29,9 +29,14 @@ and a post-freeze amendment.
 ## Workflow
 
 ### Step 1: Ingest the Architecture
-Read the service map and dependency map from architecture-decomposition. Confirm each service,
-its synchronous dependencies, and the events it emits. Every dependency edge needs a
-specification; every emitted event needs one too.
+Read the service map and dependency map from architecture-decomposition. Each service has two
+contract surfaces, and both need specification:
+- its **public API** — the operations external callers and end users invoke, which satisfy the
+  service's own functional requirements;
+- its **inter-service edges** — the synchronous calls it makes on peers and the events it emits.
+
+Most acceptance criteria live on the public surface, not on the edges, so a contract that
+specifies only edges will fail the completeness check. Specify both.
 
 A Foundation-tier modular monolith has no inter-service edges to specify. When the architecture
 defines internal modules rather than independent services, skip the specification work: record
@@ -39,9 +44,10 @@ the contracts section as "N/A — modular monolith, interfaces stay internal" an
 to the human gate. Module boundaries are enforced in code review, not by a frozen wire contract.
 
 ### Step 2: Specify Synchronous Interfaces
-For each synchronous dependency, write an OpenAPI document describing the operations, their
-request and response schemas, and their error responses. Name operations for the business
-action, not for the HTTP verb. Keep each schema owned by the service that produces it.
+Write an OpenAPI document for each service's public operations and for each synchronous
+dependency, describing the operations, their request and response schemas, and their error
+responses. Name operations for the business action, not for the HTTP verb. Keep each schema
+owned by the service that produces it.
 
 ### Step 3: Specify Asynchronous Events
 For each emitted event, write an AsyncAPI document giving the channel, the payload schema, and
