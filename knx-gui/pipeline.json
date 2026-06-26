@@ -58,6 +58,22 @@
       "evidence": "5/5 tests pass against real 7.5MB BV Neil Richter project (83 devices, 84 GAs); TDD RED->GREEN",
       "cycle": 1,
       "model_used": "sonnet"
+    },
+    {
+      "service": "linking/linkModel",
+      "tier": "Foundation",
+      "axes": {
+        "security": 30,
+        "requirements": 30,
+        "code_quality": 20,
+        "maintainability": 19
+      },
+      "total": 99,
+      "overrides": [],
+      "decision": "auto_accept",
+      "evidence": "8/8 tests; KNX-correct ordered-link model (first=sending); immutable; round-trips real Links format; TDD RED->GREEN",
+      "cycle": 1,
+      "model_used": "sonnet"
     }
   ],
   "open_findings": [
@@ -66,7 +82,19 @@
       "severity": "HIGH",
       "finding": "Lastenheft/spec said links use nested <Send>/<Receive> elements. Real ETS6 file has ZERO of those; links are a Links=\"GA-x\" attribute (space-separated), with short GA ids resolving to full ids. Send/Receive direction is NOT stored per-link.",
       "impact": "FR-04 (link with Send/Receive prompt) rests on a wrong data model. Direction comes from the KO flags in the manufacturer app-XML, not from the link.",
-      "status": "open \u2014 needs requirements amendment before building the linking module"
+      "status": "RESOLVED \u2014 researched KNX docs. Direction is order-based (first linked GA = sending address), capability is from KO flags (TransmitFlag/WriteFlag) in the app-XML ComObject/ComObjectRef. No per-link Send/Receive."
     }
-  ]
+  ],
+  "fr04_model": {
+    "description": "Ordered link model per KO (KNX-correct, replaces Send/Receive dialog)",
+    "rules": [
+      "A KO holds an ordered list of linked GA ids",
+      "index 0 = sending address; all entries = listening addresses",
+      "drag&drop appends a GA (listening); first one becomes sending automatically",
+      "\"Set Sending\" moves a GA to index 0",
+      "export serializes as Links=\"<sending> <listening...>\" in order",
+      "KO flags (TransmitFlag/WriteFlag) from app-XML validate capability, not direction"
+    ],
+    "source": "support.knx.org: Sending Group Address, Flags, Group Object"
+  }
 }
