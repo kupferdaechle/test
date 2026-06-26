@@ -137,11 +137,19 @@ Do not omit sections; mark them "N/A — not applicable" if empty.
 
 ## 3. Funktionale Anforderungen
 ### 3.1 Kernfunktionen
-- FR-01: [Requirement]
-- FR-02: [Requirement]
+Each requirement carries an ID, a description, and at least one acceptance
+criterion phrased so a downstream agent can verify it against code. The
+bounded_context field is left blank here — architecture-decomposition fills it.
+
+- **FR-01** — [Requirement]
+  - Acceptance: [observable, checkable condition]
+  - Bounded context: _(filled in Phase 1)_
+- **FR-02** — [Requirement]
+  - Acceptance: [observable, checkable condition]
+  - Bounded context: _(filled in Phase 1)_
 
 ### 3.2 Integrationen
-- INT-01: [System] — [Art der Integration]
+- **INT-01** — [System] — [direction and protocol of the call]
 
 ## 4. Nicht-Funktionale Anforderungen
 | Kategorie | Anforderung | Messbar |
@@ -187,7 +195,17 @@ Append this JSON block after the Markdown, separated by a horizontal rule:
   "tier": "",
   "version": "1.0",
   "date": "",
-  "functional_requirements": [],
+  "functional_requirements": [
+    {
+      "id": "FR-01",
+      "description": "",
+      "acceptance_criteria": [],
+      "bounded_context": null
+    }
+  ],
+  "integrations": [
+    { "id": "INT-01", "system": "", "direction": "", "protocol": "" }
+  ],
   "non_functional_requirements": {
     "performance": "",
     "availability": "",

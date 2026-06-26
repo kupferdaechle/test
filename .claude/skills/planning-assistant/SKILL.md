@@ -5,14 +5,15 @@ description: Use when starting a new software project to guide an IT consultant 
   non-functional capture checklist, qualifies the tier (Foundation, Professional, or
   Enterprise) via six criteria including criticality and dependency depth, escalates
   compliance and architectural blockers to a human, and produces a signed-off Lastenheft
-  with observability requirements and a per-phase model recommendation. Do not use for
-  ongoing feature requests, bug reports, or projects with an existing requirements document.
+  whose functional requirements carry acceptance criteria as the contract for every later
+  phase, plus observability requirements and a per-phase model recommendation. Do not use
+  for ongoing feature requests, bug reports, or projects with an existing requirements document.
 when_to_use: |
   Use at the start of a new project when an IT consultant must capture the vision,
   run a consultative interview across functional and non-functional requirements,
-  qualify the tier via six criteria, and produce a Lastenheft that passes a Human
-  Gate. Invoke when requirements are undefined and a tier decision is needed. Do
-  not use for change requests, bug triage, or when a requirements document exists.
+  qualify the tier, and produce a Lastenheft that passes a Human Gate. Invoke when
+  requirements are undefined and a tier decision is needed. Do not use for change
+  requests, bug triage, or when a requirements document exists.
 metadata:
   author: vibe-pipeline
   version: 1.0.0
@@ -76,6 +77,11 @@ Generate the structured Markdown document with the JSON block appended.
 Follow the template in [reference.md](reference.md#output-template) exactly.
 Include: project goals, stakeholders, functional and non-functional requirements,
 tier decision with justification, open escalation points, and model recommendation.
+
+Every functional requirement must carry an ID and at least one acceptance
+criterion phrased so a downstream agent can verify it against code. This
+structured contract is the interface every later phase consumes — leave the
+bounded_context field null for architecture-decomposition to populate.
 
 ### Step 7: Human Gate
 Present the full document. Ask the consultant and the customer to confirm
