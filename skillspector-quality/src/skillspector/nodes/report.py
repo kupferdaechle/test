@@ -34,6 +34,11 @@ def report(state: SkillspectorState) -> dict[str, object]:
     }
 
     body: dict[str, Any] = {
+        "risk_assessment": {
+            "risk_score": risk_score,
+            "risk_severity": risk_severity,
+            "risk_recommendation": risk_recommendation,
+        },
         "risk_score": risk_score,
         "risk_severity": risk_severity,
         "risk_recommendation": risk_recommendation,
@@ -41,8 +46,21 @@ def report(state: SkillspectorState) -> dict[str, object]:
         "stub": True,
     }
 
+    if output_format == "json":
+        report_body = json.dumps(body)
+    elif output_format == "markdown":
+        report_body = (
+            "# SkillSpector Security Report\n\n"
+            f"- **Risk score:** {risk_score}/100 ({risk_severity})\n"
+            f"- **Recommendation:** {risk_recommendation}\n"
+            f"- **Findings:** {len(findings)}\n"
+            "- _Security scanning runs in stub mode; install SkillRater for full analysis._\n"
+        )
+    else:
+        report_body = str(body)
+
     return {
-        "report_body": json.dumps(body) if output_format == "json" else str(body),
+        "report_body": report_body,
         "sarif_report": sarif,
         "risk_score": risk_score,
         "risk_severity": risk_severity,

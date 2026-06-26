@@ -58,7 +58,9 @@ def build_context(state: SkillspectorState) -> dict[str, object]:
 
     file_cache: dict[str, str] = {}
     components: list[dict[str, Any]] = []
-    metadata: dict[str, Any] = {}
+    # component_metadata is a LIST of per-file dicts (each carries its own "path"),
+    # matching what the report renderer iterates over.
+    metadata: list[dict[str, Any]] = []
 
     for p in sorted(skill_dir.rglob("*")):
         if not p.is_file():
@@ -75,12 +77,13 @@ def build_context(state: SkillspectorState) -> dict[str, object]:
         file_cache[rel] = content
         ftype = _file_type(p)
         components.append({"path": rel, "type": ftype})
-        metadata[rel] = {
+        metadata.append({
+            "path": rel,
             "type": ftype,
             "lines": content.count("\n") + 1,
             "size": p.stat().st_size,
             "executable": bool(p.stat().st_mode & 0o111),
-        }
+        })
 
     return {
         "components": components,

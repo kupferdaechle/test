@@ -22,6 +22,9 @@ dependencies = [
     "langchain-core>=0.3",
 ]
 
+[project.scripts]
+skillspector-quality = "skillspector_quality.cli:app"
+
 [project.optional-dependencies]
 code = [
     "radon>=6.0",
