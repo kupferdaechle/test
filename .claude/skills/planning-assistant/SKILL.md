@@ -63,8 +63,11 @@ availability, security, compliance, and observability. Probe these only where
 the functional answers imply a constraint, so the conversation stays natural.
 
 Observability is mandatory for every tier — capture tracing, metrics, and
-logging expectations explicitly. If the customer defers it ("we'll handle it
-later"), escalate: retrofitting observability after go-live costs 3× more.
+logging expectations explicitly. Distinguish two cases: a deferral ("we'll
+handle it later") is a gap — escalate, since retrofitting after go-live costs
+3× more. But a client-only system genuinely has no distributed tracing or
+service metrics; record those as "N/A — client-side" and keep only the logging
+expectation. N/A by architecture is not a deferral and does not escalate.
 
 ### Step 5: Detect Gaps and Escalate
 After each major section, check the gap list in

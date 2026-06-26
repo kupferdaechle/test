@@ -1,5 +1,21 @@
 # Reference: Architecture Decomposition
 
+## Architecture Modes
+
+Choose the mode from the Lastenheft before decomposing. The mode is not the tier — a Foundation
+project can be backend, and an Enterprise one can have a thick client. Read the non-functional
+section: "no backend" or "client-side tool" signals client mode.
+
+| Mode | Trigger | Unit | Events | Coupling rule |
+|---|---|---|---|---|
+| **Backend services** | Services communicate over a network | Deployable service | Real async events | At most 3 synchronous calls |
+| **Client / frontend** | Browser or desktop app, no backend | Feature module | None unless real messaging exists | Encapsulation (see below) |
+| **In-process monolith** | One deployable, internal modules | Internal module | None | Encapsulation (see below) |
+
+In client and monolith mode, do not invent wire events, do not call modules "services", and do
+not flag a central store as coupling. Those are backend concepts that mislead when forced onto
+an in-process design.
+
 ## Event Storming
 
 A bounded context emerges from events that change together. Run the storm in three passes,
@@ -28,7 +44,10 @@ Tier scaling:
 
 ## Coupling Rules
 
-Maintainability is measured, not asserted. Enforce these limits and escalate any breach.
+Maintainability is measured, not asserted. The rule depends on the mode; enforce it and
+escalate any breach.
+
+### Backend mode
 
 | Rule | Limit | Why |
 |---|---|---|
@@ -37,8 +56,19 @@ Maintainability is measured, not asserted. Enforce these limits and escalate any
 | Context ownership | One context per service | A context split across services shares a database and loses its boundary |
 | Shared data | None across contexts | Services expose behavior through contracts, never shared tables |
 
-Prefer asynchronous events over synchronous calls when a dependency is not on the request's
-critical path. Asynchronous coupling does not count against the fan-out limit.
+Prefer asynchronous events over synchronous calls off the critical path; async coupling does
+not count against the fan-out limit.
+
+### Client and monolith mode
+
+| Rule | Limit | Why |
+|---|---|---|
+| Encapsulation | No module reaches into another module's internals | Internal reach-in is the frontend equivalent of a shared database — it destroys the boundary |
+| Communication | Only through the shared store or a module's public API | A single well-known store is the sanctioned coupling point, not a smell |
+| Dependency cycles | Zero | Circular module imports make the build order undefined and the code untestable in isolation |
+
+A central store that every module reads is allowed and expected. Do not flag it. The fan-out
+limit does not apply here — it measures network calls that do not exist in one process.
 
 ---
 
