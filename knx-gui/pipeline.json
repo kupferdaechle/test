@@ -1,19 +1,72 @@
 {
-  "pipeline_state": { "phase": "review", "updated": "2026-06-26" },
-  "lastenheft": { "project": "KNX Gruppenadress-Editor", "tier": "Foundation", "mode": "client" },
-  "architecture": {
-    "mode": "client", "style": "React SPA, feature modules, shared store",
-    "modules": ["parser", "ga-management", "linking", "exporter", "utils"],
-    "coupling_check": { "rule": "encapsulation", "verdict": "PASS — shared store, no reach-in" }
+  "pipeline_state": {
+    "phase": "review",
+    "updated": "2026-06-26"
   },
-  "contracts": { "status": "N/A — client monolith, interfaces stay internal" },
+  "lastenheft": {
+    "project": "KNX Gruppenadress-Editor",
+    "tier": "Foundation",
+    "mode": "client"
+  },
+  "architecture": {
+    "mode": "client",
+    "style": "React SPA, feature modules, shared store",
+    "modules": [
+      "parser",
+      "ga-management",
+      "linking",
+      "exporter",
+      "utils"
+    ],
+    "coupling_check": {
+      "rule": "encapsulation",
+      "verdict": "PASS \u2014 shared store, no reach-in"
+    }
+  },
+  "contracts": {
+    "status": "N/A \u2014 client monolith, interfaces stay internal"
+  },
   "reviews": [
     {
-      "service": "utils/addressUtils", "tier": "Foundation",
-      "axes": { "security": 30, "requirements": 30, "code_quality": 19, "maintainability": 19 },
-      "total": 98, "overrides": [], "decision": "auto_accept",
+      "service": "utils/addressUtils",
+      "tier": "Foundation",
+      "axes": {
+        "security": 30,
+        "requirements": 30,
+        "code_quality": 19,
+        "maintainability": 19
+      },
+      "total": 98,
+      "overrides": [],
+      "decision": "auto_accept",
       "evidence": "7/7 tests pass; AC-09.1..09.4 covered + range validation; TDD RED->GREEN observed",
-      "cycle": 1, "model_used": "sonnet"
+      "cycle": 1,
+      "model_used": "sonnet"
+    },
+    {
+      "service": "parser/knxprojParser",
+      "tier": "Foundation",
+      "axes": {
+        "security": 30,
+        "requirements": 27,
+        "code_quality": 19,
+        "maintainability": 18
+      },
+      "total": 94,
+      "overrides": [],
+      "decision": "auto_accept",
+      "evidence": "5/5 tests pass against real 7.5MB BV Neil Richter project (83 devices, 84 GAs); TDD RED->GREEN",
+      "cycle": 1,
+      "model_used": "sonnet"
+    }
+  ],
+  "open_findings": [
+    {
+      "id": "SPEC-01",
+      "severity": "HIGH",
+      "finding": "Lastenheft/spec said links use nested <Send>/<Receive> elements. Real ETS6 file has ZERO of those; links are a Links=\"GA-x\" attribute (space-separated), with short GA ids resolving to full ids. Send/Receive direction is NOT stored per-link.",
+      "impact": "FR-04 (link with Send/Receive prompt) rests on a wrong data model. Direction comes from the KO flags in the manufacturer app-XML, not from the link.",
+      "status": "open \u2014 needs requirements amendment before building the linking module"
     }
   ]
 }

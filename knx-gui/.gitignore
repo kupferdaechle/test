@@ -1,3 +1,6 @@
 node_modules/
 dist/
 *.log
+
+# Real KNX project fixtures hold personal building data — keep out of git
+test/fixtures/*.knxproj
