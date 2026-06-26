@@ -88,6 +88,15 @@ Present the full document. Ask the consultant and the customer to confirm
 each section explicitly. Do not mark the gate passed until both sign off.
 Record any last-minute changes as a versioned amendment, not a silent edit.
 
+## Pipeline Contract
+
+All phases share one state file, `pipeline.json`, at the root of the project
+under development. This skill owns the first section: create the file if it
+does not exist and write your output under the `lastenheft` key, leaving room
+for later phases to append theirs. Every downstream skill reads this file to
+load prior work, so the structure here is the foundation the whole pipeline
+depends on.
+
 ## Escalation Rules
 
 Stop the interview and bring in a human immediately when:

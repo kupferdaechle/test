@@ -142,10 +142,11 @@ criterion phrased so a downstream agent can verify it against code. The
 bounded_context field is left blank here — architecture-decomposition fills it.
 
 - **FR-01** — [Requirement]
-  - Acceptance: [observable, checkable condition]
+  - AC-01.1: [observable, checkable condition]
+  - AC-01.2: [second condition, if any]
   - Bounded context: _(filled in Phase 1)_
 - **FR-02** — [Requirement]
-  - Acceptance: [observable, checkable condition]
+  - AC-02.1: [observable, checkable condition]
   - Bounded context: _(filled in Phase 1)_
 
 ### 3.2 Integrationen
@@ -199,7 +200,9 @@ Append this JSON block after the Markdown, separated by a horizontal rule:
     {
       "id": "FR-01",
       "description": "",
-      "acceptance_criteria": [],
+      "acceptance_criteria": [
+        { "id": "AC-01.1", "text": "" }
+      ],
       "bounded_context": null
     }
   ],

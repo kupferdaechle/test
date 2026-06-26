@@ -92,7 +92,7 @@ Auto-reject is not a dead end; it is a cycle with a limit.
     "overrides": [],
     "decision": "auto_accept | human_review | auto_reject",
     "remediation": [
-      { "axis": "", "finding": "", "fix": "" }
+      { "axis": "", "criterion": "", "finding": "", "fix": "" }
     ],
     "cycle": 1,
     "model_used": ""

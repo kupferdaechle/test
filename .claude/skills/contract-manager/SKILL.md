@@ -33,6 +33,11 @@ Read the service map and dependency map from architecture-decomposition. Confirm
 its synchronous dependencies, and the events it emits. Every dependency edge needs a
 specification; every emitted event needs one too.
 
+A Foundation-tier modular monolith has no inter-service edges to specify. When the architecture
+defines internal modules rather than independent services, skip the specification work: record
+the contracts section as "N/A — modular monolith, interfaces stay internal" and pass straight
+to the human gate. Module boundaries are enforced in code review, not by a frozen wire contract.
+
 ### Step 2: Specify Synchronous Interfaces
 For each synchronous dependency, write an OpenAPI document describing the operations, their
 request and response schemas, and their error responses. Name operations for the business
@@ -62,6 +67,14 @@ same revision.
 Present the frozen specifications to the tech lead. Coding cannot begin until the lead signs
 off, because every parallel agent inherits these decisions. Record the approval against the
 freeze tag.
+
+## Pipeline Contract
+
+All phases share one state file, `pipeline.json`, at the root of the project under development.
+Read the `architecture` section for the services and their edges — stop and report if it is
+absent, since you cannot specify interfaces without boundaries. Write your output under the
+`contracts` key, tracing each acceptance criterion to the operation that fulfills it by its
+criterion ID, not by requirement alone. Preserve every other section untouched.
 
 ## Amendment Rule
 

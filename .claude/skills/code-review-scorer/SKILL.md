@@ -60,11 +60,20 @@ auto-accept floor and an auto-reject floor; the band between them is human revie
 - **Auto-reject** — return to the coding agent with the failing axes named and a concrete fix
   for each. Re-score on resubmission. After two failed cycles, route to a human instead.
 
+## Pipeline Contract
+
+All phases share one state file, `pipeline.json`, at the root of the project under development.
+Read three sections to score a change: `lastenheft` for the tier and the acceptance criteria by
+their IDs, `architecture` for the service's coupling limit, and `contracts` for the frozen
+specification to check conformance against. Stop and report if any is missing. Append your
+verdict to the `reviews` array — never overwrite a prior verdict — and preserve all else.
+
 ## Output
 
 Emit the structured verdict from [reference.md](reference.md#output-contract): the four axis
 scores, the total, the overrides triggered, the routing decision, and the per-axis remediation.
-Append it to the pipeline record so the integration phase and the human both see one verdict.
+Each requirements deduction names the specific acceptance criterion ID it failed, so the coding
+agent knows exactly which condition lacks a passing test.
 
 ## Model Recommendation
 

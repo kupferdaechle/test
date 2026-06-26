@@ -66,6 +66,14 @@ Present the service boundaries to the architect. Boundaries are the one decision
 ruinous to change after coding starts, so do not mark the gate passed until the architect
 signs off each service's responsibility and its dependencies.
 
+## Pipeline Contract
+
+All phases share one state file, `pipeline.json`, at the root of the project under
+development. Read the `lastenheft` section that planning wrote — stop and report if it is
+missing, since you cannot decompose requirements that do not exist. Write your output under
+the `architecture` key, and write each service's bounded_context back into the matching
+requirement so the assignment stays linked. Preserve every other section untouched.
+
 ## Escalation Rules
 
 Stop and bring in a human architect immediately when:

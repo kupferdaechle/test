@@ -61,7 +61,7 @@ drift is the silent cause of integration failure.
 The freeze is what makes parallel coding safe. Without it, two agents implement against a
 moving target.
 
-1. **Completeness check** — every acceptance criterion traces to an operation or event.
+1. **Completeness check** — every acceptance criterion, by its ID, traces to an operation or event.
 2. **Commit** — all specifications in one commit, no implementation code.
 3. **Tag** — annotate with a version, e.g. `contracts-v1.0.0`.
 4. **Record** — write the tag into the output so every agent pins it.
@@ -99,7 +99,7 @@ contracts/
       { "service": "", "format": "openapi|asyncapi", "path": "", "version": "" }
     ],
     "criteria_trace": [
-      { "requirement": "FR-01", "satisfied_by": "" }
+      { "criterion": "AC-01.1", "requirement": "FR-01", "satisfied_by": "" }
     ],
     "contract_human_gate_passed": false,
     "open_amendments": []
