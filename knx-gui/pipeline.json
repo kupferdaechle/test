@@ -1,7 +1,7 @@
 {
   "pipeline_state": {
-    "phase": "review",
-    "updated": "2026-06-26"
+    "phase": "data-layer-complete",
+    "updated": "2026-06-27"
   },
   "lastenheft": {
     "project": "KNX Gruppenadress-Editor",
@@ -89,6 +89,22 @@
       "decision": "auto_accept",
       "evidence": "3/3 round-trip tests vs real 7.5MB file: no-change re-parses identical, namespace+all ZIP entries preserved, added GA survives. AC-06.1 met.",
       "caveat": "AC-06.2 (ETS6 import without errors) NOT verifiable here \u2014 human-gate item, needs ETS6.",
+      "cycle": 1,
+      "model_used": "sonnet"
+    },
+    {
+      "service": "ga-management/gaManagement",
+      "tier": "Foundation",
+      "axes": {
+        "security": 30,
+        "requirements": 30,
+        "code_quality": 20,
+        "maintainability": 19
+      },
+      "total": 99,
+      "overrides": [],
+      "decision": "auto_accept",
+      "evidence": "5/5 tests; unique id generation, duplicate-address rejection, immutable device rename; TDD RED->GREEN",
       "cycle": 1,
       "model_used": "sonnet"
     }
