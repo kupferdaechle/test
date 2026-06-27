@@ -10,5 +10,6 @@ export default defineConfig({
     environment: 'node',
     // Round-trip tests parse + repack the real 7.5MB .knxproj; ZIP work is heavy.
     testTimeout: 30000,
+    hookTimeout: 30000,
   },
 });
