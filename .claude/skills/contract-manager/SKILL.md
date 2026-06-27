@@ -90,6 +90,8 @@ coding agent finds the interface cannot satisfy a requirement:
 - You assess whether the change is additive (backward compatible) or breaking.
 - An additive change bumps a minor version and notifies consumers.
 - A breaking change reopens the human gate and re-freezes under a new major version.
+  A breaking change is only complete when every named consumer is updated atomically in the
+  same commit or PR — shipping the producer alone is never acceptable.
 
 Escalate every breaking change to the tech lead with the requirement that forced it, the
 consumers affected, and the migration each must make.

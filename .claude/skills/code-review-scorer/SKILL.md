@@ -52,6 +52,9 @@ Some defects cannot be outweighed by a high total. Apply these before the total 
 - **Integration gap** — if the module has no integration test tracing it to the target data
   model from `architecture.target_data_model`, the change cannot auto-accept. It routes to
   human review with the note: "Module is an island — wire it into the end-to-end flow first."
+  For UI modules, browser-level verification (Playwright or equivalent) is the integration
+  test — DOM-only or unit tests do not satisfy this override, because rendering and data
+  binding defects are only visible in a running browser.
 
 These overrides are the defense against a change that games the total while hiding a real risk.
 

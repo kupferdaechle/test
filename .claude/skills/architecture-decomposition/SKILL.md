@@ -76,6 +76,12 @@ Every module that contributes to the object must be named. A module whose output
 in this model is either unused or its requirement is not yet captured — resolve the gap before
 continuing. Record it in `pipeline.json` under `architecture.target_data_model`.
 
+**Multi-source resolution**: When a field in the target model requires reading more than one
+input file or source to resolve a single value (e.g. resolving an ID through a lookup file
+before writing the final field), name both readers explicitly and assign the composition step
+to one owning module. An unowned composition step becomes an invisible coupling that only
+surfaces during integration — it must be made visible here.
+
 Example: `{ projectId: string, devices: [{id, physicalAddress, name, kos: [{id, name, dpt}]}],
 groupAddresses: [{id, address, name, dpt}], links: [{comObjectRefId, deviceId, groupAddressIds}] }`
 
