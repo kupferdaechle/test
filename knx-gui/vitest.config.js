@@ -8,5 +8,7 @@ export default defineConfig({
     root: '.',
     include: ['src/**/*.test.js'],
     environment: 'node',
+    // Round-trip tests parse + repack the real 7.5MB .knxproj; ZIP work is heavy.
+    testTimeout: 30000,
   },
 });

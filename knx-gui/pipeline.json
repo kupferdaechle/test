@@ -74,6 +74,23 @@
       "evidence": "8/8 tests; KNX-correct ordered-link model (first=sending); immutable; round-trips real Links format; TDD RED->GREEN",
       "cycle": 1,
       "model_used": "sonnet"
+    },
+    {
+      "service": "exporter/knxprojExporter",
+      "tier": "Foundation",
+      "axes": {
+        "security": 30,
+        "requirements": 26,
+        "code_quality": 19,
+        "maintainability": 18
+      },
+      "total": 93,
+      "overrides": [],
+      "decision": "auto_accept",
+      "evidence": "3/3 round-trip tests vs real 7.5MB file: no-change re-parses identical, namespace+all ZIP entries preserved, added GA survives. AC-06.1 met.",
+      "caveat": "AC-06.2 (ETS6 import without errors) NOT verifiable here \u2014 human-gate item, needs ETS6.",
+      "cycle": 1,
+      "model_used": "sonnet"
     }
   ],
   "open_findings": [
@@ -83,6 +100,12 @@
       "finding": "Lastenheft/spec said links use nested <Send>/<Receive> elements. Real ETS6 file has ZERO of those; links are a Links=\"GA-x\" attribute (space-separated), with short GA ids resolving to full ids. Send/Receive direction is NOT stored per-link.",
       "impact": "FR-04 (link with Send/Receive prompt) rests on a wrong data model. Direction comes from the KO flags in the manufacturer app-XML, not from the link.",
       "status": "RESOLVED \u2014 researched KNX docs. Direction is order-based (first linked GA = sending address), capability is from KO flags (TransmitFlag/WriteFlag) in the app-XML ComObject/ComObjectRef. No per-link Send/Receive."
+    },
+    {
+      "id": "PERF-01",
+      "severity": "LOW",
+      "finding": "Export re-compresses the full 7.5MB ZIP (~3s). Within tolerance but noticeable; consider streaming or STORE for unchanged entries if it grows.",
+      "status": "noted"
     }
   ],
   "fr04_model": {
