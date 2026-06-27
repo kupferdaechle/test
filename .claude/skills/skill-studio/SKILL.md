@@ -31,27 +31,25 @@ Run the whole session iteratively. Never dump a wall of questions or a finished 
 
 ## Layer 2 — Delegate the substance to skill-creator
 
-For everything except interaction style, use the installed skill-creator skill as the
+For everything except interaction style, use the installed `skill-creator` skill as the
 engine; do not reinvent it.
 
 - Authoring patterns, skill anatomy, and progressive disclosure → follow skill-creator's
   guidance and references.
-- Test cases and evaluation → use its eval loop (run_eval, run_loop) and the evals.json
-  schema; review results with its eval-viewer.
-- Triggering → run its improve_description to sharpen the description.
+- Test cases and evaluation → use its eval loop and the evals.json schema; review results
+  with its eval-viewer (`eval-viewer/generate_review.py`).
+- Triggering → use skill-creator's description-improver workflow.
 
-Invoke skill-creator for these steps; this overlay only keeps the process iterative and
+Invoke `skill-creator` for these steps; this overlay only keeps the process iterative and
 choice-driven while you do.
 
 ## Layer 3 — Quality gate before finishing
 
-Once a draft exists, run the deterministic skillspector-quality gate that the eval loop
-alone does not cover — token economy, redundancy, and triggerability. From the
-skillspector-quality project (its virtualenv active):
+Once the skill-creator eval loop passes, run the deterministic skillspector-quality gate
+that covers token economy, redundancy, and structural quality:
 
 ```bash
-python -m webapp.ci_gate <skill-dir> --min-score 90 \
-  --max-always-on 300 --max-per-invocation 1500 --max-redundancy 15 --min-triggerability 67
+skillspector-quality scan <skill-dir> --min-score 90
 ```
 
 Use `--min-score 90` for foundational skills that others depend on, and `85` for domain
@@ -67,13 +65,13 @@ user is satisfied. Keep this overlay thin — a bloated meta-skill would fail it
 Input: "Make me a skill that turns meeting notes into action items."
 
 Output: a one-question-at-a-time interview (purpose, triggers, exclusions, output format,
-assets), then a draft authored via skill-creator, evaluated with run_eval, checked by the
-ci_gate, and delivered once it passes.
+assets), then a draft authored via `skill-creator`, evaluated with its eval-viewer, checked
+by `skillspector-quality scan`, and delivered once both gates pass.
 
 ## Example: improve an existing skill
 
 Input: "My pdf skill keeps under-triggering and feels bloated."
 
-Output: confirm the goal, run skill-creator's improve_description for triggering, run the
-ci_gate to surface redundancy and per-invocation token cost, then iterate the weak areas
-one choice at a time until the gate passes.
+Output: confirm the goal, use skill-creator's description-improver for triggering, run
+`skillspector-quality scan` to surface redundancy and structural gaps, then iterate the
+weak areas one choice at a time until both gates pass.
