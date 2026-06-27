@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SkillSpector Quality</title>
+<style>
+  :root {
+    --bg: #0e1116;
+    --panel: #161b22;
+    --panel-2: #1c232d;
+    --border: #2a313c;
+    --text: #e6edf3;
+    --muted: #9aa7b4;
+    --accent: #5b8cff;
+    --green: #3fb950;
+    --yellow: #d6a740;
+    --red: #f0556a;
+    --shadow: 0 8px 30px rgba(0,0,0,.35);
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: radial-gradient(1200px 600px at 50% -10%, #1a2230 0%, var(--bg) 55%);
+    color: var(--text); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 20px 80px; }
+  header h1 { margin: 0 0 4px; font-size: 26px; letter-spacing: -.3px; }
+  header p { margin: 0; color: var(--muted); }
+  header .logo { font-size: 13px; color: var(--accent); font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+
+  .dropzone {
+    margin-top: 28px; border: 2px dashed var(--border); border-radius: var(--radius);
+    background: var(--panel); padding: 44px 24px; text-align: center; cursor: pointer;
+    transition: border-color .15s, background .15s, transform .05s;
+  }
+  .dropzone:hover { border-color: var(--accent); }
+  .dropzone.drag { border-color: var(--accent); background: var(--panel-2); transform: scale(1.005); }
+  .dropzone .big { font-size: 18px; font-weight: 600; }
+  .dropzone .sub { color: var(--muted); margin-top: 6px; font-size: 13px; }
+  .dropzone .icon { font-size: 40px; opacity: .8; }
+
+  .controls { display: flex; align-items: center; gap: 18px; margin-top: 16px; flex-wrap: wrap; }
+  .controls .btn {
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+    padding: 9px 16px; border-radius: 9px; cursor: pointer; font-size: 14px; font-weight: 500;
+  }
+  .controls .btn:hover { border-color: var(--accent); }
+  .toggle { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; cursor: pointer; user-select: none; }
+  .toggle input { width: 16px; height: 16px; accent-color: var(--accent); }
+  .spacer { flex: 1; }
+  .clear { color: var(--muted); background: none; border: none; cursor: pointer; font-size: 13px; text-decoration: underline; }
+
+  .summary { margin-top: 28px; display: none; gap: 14px; }
+  .summary.show { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .stat { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+  .stat .n { font-size: 26px; font-weight: 700; }
+  .stat .l { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .4px; margin-top: 2px; }
+
+  .cards { margin-top: 22px; display: grid; gap: 18px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .card .head { display: flex; align-items: center; gap: 18px; padding: 20px 22px; }
+  .gauge { position: relative; width: 92px; height: 92px; flex: none; }
+  .gauge svg { transform: rotate(-90deg); }
+  .gauge .val { position: absolute; inset: 0; display: grid; place-items: center; font-size: 24px; font-weight: 700; }
+  .head .meta { flex: 1; min-width: 0; }
+  .head .meta .name { font-size: 18px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .head .meta .tier { font-size: 13px; font-weight: 600; margin-top: 3px; }
+  .head .meta .rec { color: var(--muted); font-size: 12px; }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); }
+  .badge.sec-LOW { color: var(--green); border-color: rgba(63,185,80,.4); }
+  .badge.sec-MEDIUM { color: var(--yellow); border-color: rgba(214,167,64,.4); }
+  .badge.sec-HIGH, .badge.sec-CRITICAL { color: var(--red); border-color: rgba(240,85,106,.4); }
+
+  .dims { border-top: 1px solid var(--border); padding: 8px 22px 18px; }
+  .dim { display: grid; grid-template-columns: 200px 1fr 56px; gap: 14px; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(42,49,60,.5); }
+  .dim:last-child { border-bottom: none; }
+  .dim .label { font-size: 13px; display: flex; align-items: center; gap: 7px; }
+  .dim .kind { font-size: 10px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; }
+  .dim .barwrap { background: var(--panel-2); border-radius: 6px; height: 9px; overflow: hidden; }
+  .dim .bar { height: 100%; border-radius: 6px; transition: width .5s ease; }
+  .dim .num { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); }
+  .dim .note { grid-column: 1 / -1; color: var(--muted); font-size: 12px; margin-top: -2px; }
+
+  details.extra { border-top: 1px solid var(--border); }
+  details.extra summary { padding: 12px 22px; cursor: pointer; color: var(--muted); font-size: 13px; user-select: none; }
+  details.extra .body { padding: 0 22px 18px; color: var(--muted); font-size: 13px; }
+  details.extra .body code { background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
+  .caveat { padding: 12px 22px 18px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); font-style: italic; }
+
+  .toggle select { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 7px; padding: 5px 8px; font-size: 13px; cursor: pointer; }
+  .tokens { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 22px 12px; }
+  .tk { font-size: 11px; color: var(--muted); background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; }
+  .tk b { color: var(--text); font-weight: 600; }
+  .advice { margin: 0 22px 16px; padding: 10px 13px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--border); font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+  .advice.lean { border-color: rgba(214,167,64,.55); }
+  .advice b { color: var(--text); font-weight: 600; }
+
+  .trig { margin: 0 22px 14px; padding: 11px 13px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--border); }
+  .trig .top { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .trig .top b { font-weight: 600; }
+  .trig .pct { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .trig .checks { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; }
+  .trig .chk { font-size: 12px; color: var(--muted); }
+  .trig .chk.no { color: var(--text); }
+  .redundancy { margin: 0 22px 14px; padding: 10px 13px; border-radius: 9px; background: var(--panel-2); border: 1px solid rgba(214,167,64,.55); font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+  .redundancy b { color: var(--text); font-weight: 600; }
+
+  .budgetbar { height: 7px; background: var(--panel-2); border-radius: 5px; overflow: hidden; margin-top: 8px; }
+  .budgetbar > div { height: 100%; border-radius: 5px; }
+  .collisions { display: none; margin-top: 18px; }
+  .collisions.show { display: block; }
+  .collisions .panel { background: var(--panel); border: 1px solid rgba(214,167,64,.5); border-radius: var(--radius); padding: 14px 18px; box-shadow: var(--shadow); }
+  .collisions h3 { margin: 0 0 4px; font-size: 14px; color: var(--yellow); }
+  .collisions .hint { color: var(--muted); font-size: 12px; margin: 0 0 10px; }
+  .collisions .pair { font-size: 13px; padding: 8px 0; border-top: 1px solid var(--border); }
+  .collisions .pair:first-of-type { border-top: none; }
+  .collisions .pair .names { color: var(--text); font-weight: 500; }
+  .collisions .pair .shared { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .collisions .ok { color: var(--green); font-size: 13px; }
+
+  .trigeval { display: none; margin-top: 18px; }
+  .trigeval.show { display: block; }
+  .trigeval .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
+  .trigeval h3 { margin: 0 0 4px; font-size: 14px; }
+  .trigeval .hint { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+  .trigeval .ov { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 12px; }
+  .trigeval .ov .n { font-size: 22px; font-weight: 700; }
+  .trigeval .ov .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+  .trigeval table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .trigeval th { text-align: left; color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  .trigeval td { padding: 7px 8px; border-bottom: 1px solid rgba(42,49,60,.5); }
+  .trigeval td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .trigeval .running { color: var(--accent); font-size: 13px; }
+
+  details.brief summary { color: var(--accent); font-weight: 600; }
+  .brieftext {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 14px; margin: 0 0 10px; white-space: pre-wrap; word-break: break-word;
+    font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--text); max-height: 280px; overflow: auto;
+  }
+  .copybtn {
+    background: var(--accent); border: none; color: #fff; padding: 8px 14px; border-radius: 8px;
+    cursor: pointer; font-size: 13px; font-weight: 500;
+  }
+  .copybtn:hover { filter: brightness(1.08); }
+  .copybtn.done { background: var(--green); }
+
+  .card.scanning .head .meta .tier { color: var(--accent); }
+  .card.err { border-color: rgba(240,85,106,.5); }
+  .spin { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .components { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .components .file { font-size: 11px; color: var(--muted); background: var(--panel-2); border-radius: 5px; padding: 2px 7px; }
+  .components .file.exec { color: var(--yellow); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">SkillSpector · Quality</div>
+    <h1>Skill-Qualität prüfen</h1>
+    <p>Ziehe einen oder mehrere Skills (Ordner oder <code>.zip</code>) in das Feld. Jeder Skill wird auf Sicherheit und Authoring-Qualität geprüft.</p>
+  </header>
+
+  <div id="dropzone" class="dropzone">
+    <div class="icon">📦</div>
+    <div class="big">Skills hierher ziehen</div>
+    <div class="sub">Ordner, einzelne <code>SKILL.md</code> oder <code>.zip</code>-Dateien · mehrere gleichzeitig möglich</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="pickFolder">📁 Ordner wählen</button>
+    <button class="btn" id="pickZip">📄 Datei(en) / Zip wählen</button>
+    <label class="toggle" title="Aktiviert die LLM-Meta-Analyse (benötigt einen konfigurierten API-Key). Standardmäßig aus = rein deterministisch.">
+      <input type="checkbox" id="useLlm" /> LLM-Analyse
+    </label>
+    <label class="toggle" title="Wie oft wird der Skill aufgerufen? Häufig genutzte Skills sollten einen schlanken Body haben (Token-Ersparnis); selten genutzte dürfen ausführlicher sein.">
+      Nutzung:
+      <select id="usage">
+        <option value="rare">selten / Planung</option>
+        <option value="frequent">häufig / täglich</option>
+      </select>
+    </label>
+    <button class="btn" id="trigEvalBtn" style="display:none" title="Misst über die Bridge (ohne API-Key), wie zuverlässig die Skills auslösen — inkl. Fehlauslösungen zwischen ähnlichen Skills.">🎯 Trigger-Eval</button>
+    <span class="spacer"></span>
+    <button class="clear" id="clearBtn" style="display:none">Ergebnisse löschen</button>
+  </div>
+
+  <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none" />
+  <input type="file" id="zipInput" accept=".zip,.md,.markdown,.txt,.py,.json,.yaml,.yml,.sh" multiple style="display:none" />
+
+  <div class="summary" id="summary"></div>
+  <div class="collisions" id="collisions"></div>
+  <div class="trigeval" id="trigeval"></div>
+  <div class="cards" id="cards"></div>
+</div>
+
+<script>
+// Central, non-hardcoded knobs so the tool scales with new models / thresholds.
+const CONFIG = {
+  contextWindow: 200000,   // target model context window (tokens)
+  leanThreshold: 800,      // body tokens above which a frequent skill is "heavy"
+  alwaysOnWarnPct: 5,      // Σ always-on tokens above this % of context → warn
+  collisionJaccard: 0.30,  // keyword-set overlap above this → flag a trigger collision
+  collisionMinShared: 5,   // ...and at least this many shared significant keywords
+  redundancyWarnPct: 12,   // % of SKILL.md body duplicated in supporting docs → warn
+  triggerMinKeywords: 6,   // concrete keywords below which a description reads as vague
+};
+const TIERS = [
+  [85, "EXCELLENT", "Bereit zur Veröffentlichung", "var(--green)"],
+  [70, "GOOD", "Review empfohlen", "var(--green)"],
+  [55, "FAIR", "Vor Veröffentlichung verbessern", "var(--yellow)"],
+  [40, "POOR", "Deutliche Nacharbeit nötig", "var(--red)"],
+  [0,  "CRITICAL", "Nicht bereit", "var(--red)"],
+];
+function tierFor(score) { return TIERS.find(t => score >= t[0]); }
+function ratioColor(r) { return r >= 0.85 ? "var(--green)" : r >= 0.5 ? "var(--yellow)" : "var(--red)"; }
+
+const cardsEl = document.getElementById("cards");
+const summaryEl = document.getElementById("summary");
+const clearBtn = document.getElementById("clearBtn");
+const useLlmEl = document.getElementById("useLlm");
+const results = [];
+
+// ---- collecting files from drops / pickers --------------------------------
+function readEntries(reader) {
+  return new Promise((res, rej) => reader.readEntries(res, rej));
+}
+async function walk(entry, prefix, out) {
+  if (entry.isFile) {
+    const file = await new Promise((res, rej) => entry.file(res, rej));
+    out.push({ path: prefix + entry.name, file });
+  } else if (entry.isDirectory) {
+    const reader = entry.createReader();
+    let batch;
+    do {
+      batch = await readEntries(reader);
+      for (const e of batch) await walk(e, prefix + entry.name + "/", out);
+    } while (batch.length);
+  }
+}
+
+// Derive a skill name for loose (non-folder, non-zip) files: prefer the
+// `name:` frontmatter of a SKILL.md, else the first file's stem.
+async function deriveSkillName(looseFiles) {
+  const skillFile = looseFiles.find(f => /(^|\/)SKILL\.md$/i.test(f.path));
+  if (skillFile) {
+    try {
+      const text = await skillFile.file.text();
+      const m = text.match(/^name:\s*(.+?)\s*$/m);
+      if (m) return m[1].trim();
+    } catch { /* ignore */ }
+    return "skill";
+  }
+  const first = looseFiles[0];
+  return first ? first.path.replace(/\.[^.]+$/, "") : "skill";
+}
+
+// A "skill" = { name, files: [{path, file}] }. A folder or .zip is one skill;
+// any loose files dropped together are grouped into a single skill.
+async function skillsFromDataTransfer(dt) {
+  const skills = [];
+  const loose = [];
+  const items = [...dt.items].map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);
+  if (items.length) {
+    for (const entry of items) {
+      if (entry.isFile && entry.name.toLowerCase().endsWith(".zip")) {
+        const file = await new Promise((res, rej) => entry.file(res, rej));
+        skills.push({ name: entry.name.replace(/\.zip$/i, ""), files: [{ path: entry.name, file }] });
+      } else if (entry.isFile) {
+        const file = await new Promise((res, rej) => entry.file(res, rej));
+        loose.push({ path: entry.name, file });
+      } else if (entry.isDirectory) {
+        const out = [];
+        await walk(entry, "", out);
+        // strip the leading "<dirname>/" so paths are relative to the skill root
+        const files = out.map(f => ({ path: f.path.replace(new RegExp("^" + entry.name + "/"), ""), file: f.file }));
+        if (files.length) skills.push({ name: entry.name, files });
+      }
+    }
+  } else {
+    // fallback for browsers without webkitGetAsEntry
+    for (const f of dt.files) {
+      if (f.name.toLowerCase().endsWith(".zip")) skills.push({ name: f.name.replace(/\.zip$/i, ""), files: [{ path: f.name, file: f }] });
+      else loose.push({ path: f.name, file: f });
+    }
+  }
+  if (loose.length) skills.push({ name: await deriveSkillName(loose), files: loose });
+  return skills;
+}
+
+function skillsFromFolderInput(fileList) {
+  // webkitdirectory gives files with .webkitRelativePath = "<root>/sub/file"
+  const byRoot = new Map();
+  for (const f of fileList) {
+    const rel = f.webkitRelativePath || f.name;
+    const root = rel.split("/")[0];
+    const sub = rel.slice(root.length + 1);
+    if (!byRoot.has(root)) byRoot.set(root, []);
+    byRoot.get(root).push({ path: sub, file: f });
+  }
+  return [...byRoot.entries()].map(([name, files]) => ({ name, files }));
+}
+
+// ---- scanning -------------------------------------------------------------
+async function scanSkill(skill) {
+  const card = renderScanning(skill.name);
+  const fd = new FormData();
+  fd.append("skill_name", skill.name);
+  fd.append("use_llm", useLlmEl.checked ? "true" : "false");
+  for (const { path, file } of skill.files) {
+    fd.append("paths", path);
+    fd.append("files", file, file.name);
+  }
+  try {
+    const r = await fetch("/api/scan", { method: "POST", body: fd });
+    const data = await r.json();
+    data.skill_name = data.skill_name || skill.name;
+    results.push(data);
+    card.replaceWith(renderResult(data));
+  } catch (e) {
+    card.replaceWith(renderError(skill.name, String(e)));
+  }
+  renderSummary();
+  renderCollisions();
+  updateTrigBtn();
+}
+
+async function handleSkills(skills) {
+  if (!skills.length) { alert("Keine Skills erkannt. Ziehe einen Ordner mit SKILL.md oder eine .zip-Datei."); return; }
+  clearBtn.style.display = "inline";
+  for (const s of skills) await scanSkill(s);
+}
+
+// ---- rendering ------------------------------------------------------------
+function gauge(score, color) {
+  const r = 40, c = 2 * Math.PI * r, off = c * (1 - score / 100);
+  return `<div class="gauge">
+    <svg width="92" height="92" viewBox="0 0 92 92">
+      <circle cx="46" cy="46" r="${r}" fill="none" stroke="var(--panel-2)" stroke-width="8"/>
+      <circle cx="46" cy="46" r="${r}" fill="none" stroke="${color}" stroke-width="8"
+        stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/>
+    </svg>
+    <div class="val">${score}</div>
+  </div>`;
+}
+
+function renderScanning(name) {
+  const el = document.createElement("div");
+  el.className = "card scanning";
+  el.innerHTML = `<div class="head">
+    <div class="gauge"><div class="val"><span class="spin"></span></div></div>
+    <div class="meta"><div class="name">${esc(name)}</div>
+      <div class="tier">Wird geprüft…</div></div>
+  </div>`;
+  cardsEl.prepend(el);
+  return el;
+}
+
+function renderError(name, msg) {
+  const el = document.createElement("div");
+  el.className = "card err";
+  el.innerHTML = `<div class="head"><div class="meta">
+    <div class="name">${esc(name)}</div>
+    <div class="rec" style="color:var(--red)">Fehler: ${esc(msg)}</div></div></div>`;
+  return el;
+}
+
+function renderResult(data) {
+  if (data.error) return renderError(data.skill_name, data.error);
+  const q = data.quality_assessment || {};
+  const score = q.score ?? 0;
+  const [, tierName, tierRec, tierColor] = tierFor(score);
+  const sec = data.risk_assessment || {};
+  const issues = (data.issues || []).length;
+  const comps = data.components || [];
+
+  const dims = (q.categories || []).map(cat => {
+    const r = cat.max ? cat.earned / cat.max : 0;
+    const kind = cat.kind === "frontmatter" ? "F" : "B";
+    const note = (cat.items && cat.items[0] && cat.items[0].label) || "";
+    return `<div class="dim">
+      <div class="label"><span class="kind">${kind}</span>${esc(cat.name)}</div>
+      <div class="barwrap"><div class="bar" style="width:${(r*100).toFixed(0)}%;background:${ratioColor(r)}"></div></div>
+      <div class="num">${cat.earned}/${cat.max}</div>
+      ${note ? `<div class="note">${esc(note)}</div>` : ""}
+    </div>`;
+  }).join("");
+
+  const compList = comps.map(c =>
+    `<span class="file ${c.executable ? "exec" : ""}" title="${c.lines} Zeilen${c.executable ? " · ausführbar" : ""}">${esc(c.path)}</span>`
+  ).join("");
+
+  const profile = currentProfile();
+  const brief = buildBrief(data, profile);
+  const tc = data.token_cost;
+  const tokenRow = tc ? `
+    <div class="tokens">
+      <span class="tk" title="Frontmatter — immer im Kontext (für die Trigger-Entscheidung)"><b>~${tc.always_on_tokens}</b> Dauer-Tokens</span>
+      <span class="tk" title="SKILL.md-Body — bei jedem Aufruf geladen"><b>~${tc.per_invocation_tokens}</b> pro Aufruf</span>
+      <span class="tk" title="Referenz-/Beispiel-Dateien — nur bei Bedarf geladen"><b>~${tc.on_demand_tokens}</b> on-demand</span>
+    </div>` : "";
+  const adviceBanner = brief.advice ? `<div class="advice ${brief.advice.lean ? "lean" : ""}"><b>Empfehlung (${esc(usageLabel(profile))}):</b> ${esc(brief.advice.text)}</div>` : "";
+
+  const trig = triggerability(data.skill_meta || {});
+  const trigPanel = `<div class="trig">
+      <div class="top"><i></i><b>Triggerability</b><span class="pct" style="color:${ratioColor(trig.score/100)}">${trig.score}/100</span></div>
+      <div class="checks">${trig.checks.map(c => `<span class="chk ${c.ok ? "" : "no"}">${c.ok ? "✓" : "✗"} ${esc(c.label)}</span>`).join("")}</div>
+    </div>`;
+
+  const red = data.redundancy;
+  let redNote = "";
+  if (red && red.duplication_pct >= CONFIG.redundancyWarnPct) {
+    const files = Object.entries(red.by_file).sort((a, b) => b[1] - a[1]).map(([f, p]) => `${esc(f)} (${p}%)`).join(", ");
+    redNote = `<div class="redundancy"><b>Redundanz:</b> ~${red.duplication_pct}% des SKILL.md-Body sind wörtlich auch in den Referenzen enthalten${files ? ` — ${files}` : ""}. Auslagern oder streichen statt doppeln (redundanter Kontext schadet messbar).</div>`;
+  }
+
+  const el = document.createElement("div");
+  el.className = "card";
+  el.innerHTML = `
+    <div class="head">
+      ${gauge(score, tierColor)}
+      <div class="meta">
+        <div class="name">${esc(data.skill_name)}</div>
+        <div class="tier" style="color:${tierColor}">${tierName} · ${score}/100</div>
+        <div class="rec">${tierRec}</div>
+        <div class="badges">
+          <span class="badge sec-${sec.severity || "LOW"}">🛡 Security: ${sec.severity || "—"} · ${esc(sec.recommendation || "")}</span>
+          <span class="badge">${issues} Sicherheitsfund${issues === 1 ? "" : "e"}</span>
+          <span class="badge">${comps.length} Datei${comps.length === 1 ? "" : "en"}</span>
+        </div>
+      </div>
+    </div>
+    ${tokenRow}
+    ${redNote}
+    ${adviceBanner}
+    ${trigPanel}
+    <div class="dims">${dims}</div>
+    <details class="extra brief" open>
+      <summary>📋 Verbesserungs-Brief für ein LLM ${brief.hasLlm ? "(inkl. LLM-Tipps)" : "(deterministisch)"}</summary>
+      <div class="body">
+        <pre class="brieftext">${esc(brief.text)}</pre>
+        <button class="copybtn">In Zwischenablage kopieren</button>
+      </div>
+    </details>
+    <details class="extra">
+      <summary>Details · Dateien & Metadaten</summary>
+      <div class="body">
+        <div class="components">${compList}</div>
+        <p style="margin-top:12px">SkillSpector ${esc((data.metadata||{}).skillspector_version||"?")} ·
+        LLM-Analyse: ${(data.metadata||{}).llm_requested ? "an" : "aus"} ·
+        Coverage: ${(data.analysis_completeness||{}).coverage_percent ?? "?"}% ·
+        Tokens: ${esc((tc||{}).tokenizer || "?")}</p>
+      </div>
+    </details>
+    ${q.caveat ? `<div class="caveat">${esc(q.caveat)}</div>` : ""}
+  `;
+  const copyBtn = el.querySelector(".copybtn");
+  copyBtn.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(brief.text); }
+    catch { const r = document.createRange(); r.selectNode(el.querySelector(".brieftext")); getSelection().removeAllRanges(); getSelection().addRange(r); document.execCommand("copy"); }
+    copyBtn.textContent = "Kopiert ✓"; copyBtn.classList.add("done");
+    setTimeout(() => { copyBtn.textContent = "In Zwischenablage kopieren"; copyBtn.classList.remove("done"); }, 1800);
+  });
+  return el;
+}
+
+function renderSummary() {
+  const ok = results.filter(r => !r.error && r.quality_assessment);
+  if (!ok.length) { summaryEl.className = "summary"; summaryEl.innerHTML = ""; return; }
+  const scores = ok.map(r => r.quality_assessment.score);
+  const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+  const best = ok.reduce((a, b) => a.quality_assessment.score >= b.quality_assessment.score ? a : b);
+  const worst = ok.reduce((a, b) => a.quality_assessment.score <= b.quality_assessment.score ? a : b);
+  const flagged = ok.filter(r => (r.issues || []).length > 0).length;
+
+  // Portfolio always-on cost: every skill's frontmatter loads at session start.
+  const sumAlwaysOn = ok.reduce((a, r) => a + ((r.token_cost || {}).always_on_tokens || 0), 0);
+  const pct = CONFIG.contextWindow ? (sumAlwaysOn / CONFIG.contextWindow * 100) : 0;
+  const budgetColor = pct >= CONFIG.alwaysOnWarnPct ? "var(--red)" : pct >= CONFIG.alwaysOnWarnPct / 2 ? "var(--yellow)" : "var(--green)";
+
+  summaryEl.className = "summary show";
+  summaryEl.innerHTML = `
+    <div class="stat"><div class="n">${ok.length}</div><div class="l">Skills geprüft</div></div>
+    <div class="stat"><div class="n" style="color:${tierFor(avg)[3]}">${avg}</div><div class="l">Ø Qualität</div></div>
+    <div class="stat"><div class="n" style="color:var(--green)">${best.quality_assessment.score}</div><div class="l">Bester: ${esc(best.skill_name)}</div></div>
+    <div class="stat"><div class="n" style="color:${tierFor(worst.quality_assessment.score)[3]}">${worst.quality_assessment.score}</div><div class="l">Schwächster: ${esc(worst.skill_name)}</div></div>
+    <div class="stat"><div class="n" style="color:${flagged ? "var(--red)" : "var(--green)"}">${flagged}</div><div class="l">mit Sicherheitsfunden</div></div>
+    <div class="stat" title="Summe der Frontmatter-Tokens aller Skills — diese laden bei jedem Session-Start gleichzeitig in den Kontext.">
+      <div class="n" style="color:${budgetColor}">~${sumAlwaysOn.toLocaleString("de-DE")}</div>
+      <div class="l">Σ Dauer-Tokens · ${pct.toFixed(pct < 1 ? 2 : 1)}% von ${(CONFIG.contextWindow/1000)}K</div>
+      <div class="budgetbar"><div style="width:${Math.min(100, pct).toFixed(2)}%;background:${budgetColor}"></div></div>
+    </div>
+  `;
+}
+
+// ---- trigger-collision detection across skills ----------------------------
+// Many similar-sounding skill descriptions degrade the model's ability to pick the
+// right one (tool-overload research). We compare the significant keyword sets of the
+// description + when_to_use across all scanned skills and flag heavy overlaps.
+const STOPWORDS = new Set((
+  "the and for with that this when from into your you use used uses using user " +
+  "should into onto only also able about which what whom whose into not non " +
+  "skill skills claude code file files input output json markdown task tasks " +
+  "oder und für mit wenn eine einen eines dem den die das nicht auch über " +
+  "verwende nutze wird werden soll sollte diese dieser dieses beim einem"
+).split(/\s+/));
+
+function keywordsOf(meta) {
+  const text = ((meta.description || "") + " " + (meta.when_to_use || "")).toLowerCase();
+  const words = text.split(/[^a-z0-9äöüß]+/).filter(w => w.length >= 4 && !STOPWORDS.has(w));
+  return new Set(words);
+}
+
+// Triggerability: how reliably the description will make the skill fire (and not misfire).
+// The description is the single most important piece for triggering (research), so we score
+// the concrete signals: trigger verb, exclusion, condition, length, keyword concreteness.
+function triggerability(meta) {
+  const d = (meta.description || "").toLowerCase();
+  const w = (meta.when_to_use || "").toLowerCase();
+  const all = d + " " + w;
+  const checks = [
+    { ok: /\b(use|using|invoke|trigger|call|apply|run|activate|nutze|verwende)\b/.test(all), label: "Trigger-Verb (use / invoke …)" },
+    { ok: /\b(do ?not|don'?t|never|not for|avoid|skip|nicht für|keine)\b/.test(all), label: "Ausschluss (\"Do not use for …\")" },
+    { ok: /\b(when|if|while|wenn|falls)\b/.test(all), label: "Bedingung (when / if …)" },
+    { ok: d.length >= 60, label: "Description aussagekräftig (≥60 Zeichen)" },
+    { ok: w.length >= 80, label: "when_to_use ≥ 80 Zeichen" },
+    { ok: keywordsOf(meta).size >= CONFIG.triggerMinKeywords, label: `Genug konkrete Schlüsselwörter (≥${CONFIG.triggerMinKeywords})` },
+  ];
+  const passed = checks.filter(c => c.ok).length;
+  return { score: Math.round(passed / checks.length * 100), checks, missing: checks.filter(c => !c.ok).map(c => c.label) };
+}
+
+function triggerCollisions(ok) {
+  const sets = ok.map(r => ({ name: r.skill_name, kw: keywordsOf(r.skill_meta || {}) }));
+  const out = [];
+  for (let i = 0; i < sets.length; i++) {
+    for (let j = i + 1; j < sets.length; j++) {
+      const a = sets[i], b = sets[j];
+      const shared = [...a.kw].filter(w => b.kw.has(w));
+      const union = new Set([...a.kw, ...b.kw]).size || 1;
+      const jaccard = shared.length / union;
+      if (shared.length >= CONFIG.collisionMinShared && jaccard >= CONFIG.collisionJaccard)
+        out.push({ a: a.name, b: b.name, shared, jaccard });
+    }
+  }
+  return out.sort((x, y) => y.jaccard - x.jaccard);
+}
+
+function renderCollisions() {
+  const el = document.getElementById("collisions");
+  const ok = results.filter(r => !r.error && r.skill_meta);
+  if (ok.length < 2) { el.className = "collisions"; el.innerHTML = ""; return; }
+  el.className = "collisions show";
+  const cols = triggerCollisions(ok);
+  if (!cols.length) {
+    el.innerHTML = `<div class="panel" style="border-color:var(--border)"><h3 class="ok">✓ Keine Trigger-Kollisionen</h3><p class="hint">Die Descriptions der ${ok.length} Skills überlappen sich kaum — gut für zuverlässiges Auslösen.</p></div>`;
+    return;
+  }
+  const rows = cols.map(c =>
+    `<div class="pair"><div class="names">⚠ ${esc(c.a)} ↔ ${esc(c.b)} <span style="color:var(--muted);font-weight:400">(${Math.round(c.jaccard*100)}% Überlappung)</span></div>
+     <div class="shared">${c.shared.length} gemeinsame Schlüsselwörter: ${esc(c.shared.slice(0,12).join(", "))}</div></div>`
+  ).join("");
+  el.innerHTML = `<div class="panel"><h3>⚠ Mögliche Trigger-Kollisionen (${cols.length})</h3>
+    <p class="hint">Diese Skills teilen viel Trigger-Vokabular — das Modell könnte beim Auslösen verwechseln. Descriptions schärfen oder die Geltungsbereiche klarer per „Do not use for …" abgrenzen.</p>${rows}</div>`;
+}
+
+// ---- trigger-reliability eval (via the file bridge — session acts as the LLM) ----
+function trigEvalSkills() {
+  return results
+    .filter(r => !r.error && r.skill_meta && (r.skill_meta.description || r.skill_meta.when_to_use))
+    .map(r => ({ name: r.skill_name, description: r.skill_meta.description || "", when_to_use: r.skill_meta.when_to_use || "" }));
+}
+
+function updateTrigBtn() {
+  document.getElementById("trigEvalBtn").style.display = trigEvalSkills().length ? "inline-block" : "none";
+}
+
+async function runTriggerEval() {
+  const skills = trigEvalSkills();
+  const el = document.getElementById("trigeval");
+  if (!skills.length) { el.className = "trigeval"; el.innerHTML = ""; return; }
+  el.className = "trigeval show";
+  el.innerHTML = `<div class="panel"><h3>🎯 Trigger-Eval läuft…</h3><p class="running">Anfrage liegt in der Bridge — sie wird vom Session-Modell beantwortet. Bitte warten…</p></div>`;
+  try {
+    const r = await fetch("/api/trigger-eval", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ skills, k: 3 }) });
+    renderTriggerEval(await r.json());
+  } catch (e) {
+    el.innerHTML = `<div class="panel"><h3>Trigger-Eval fehlgeschlagen</h3><p class="hint">${esc(String(e))}</p></div>`;
+  }
+}
+
+function pctText(v) { return v == null ? "–" : Math.round(v * 100) + "%"; }
+
+function renderTriggerEval(data) {
+  const el = document.getElementById("trigeval");
+  el.className = "trigeval show";
+  if (!data || data.ok === false) {
+    el.innerHTML = `<div class="panel"><h3>🎯 Trigger-Eval</h3><p class="hint">${esc((data && data.error) || "Keine Auswertung erhalten.")}</p></div>`;
+    return;
+  }
+  const ov = data.overall || {};
+  const selColor = ov.selection_accuracy == null ? "var(--muted)" : ratioColor(ov.selection_accuracy);
+  const falseColor = ov.false_trigger_rate == null ? "var(--muted)" : ratioColor(1 - ov.false_trigger_rate);
+  const rows = Object.entries(data.per_skill || {}).map(([name, m]) =>
+    `<tr><td>${esc(name)}</td>
+      <td class="num" style="color:${m.recall == null ? "var(--muted)" : ratioColor(m.recall)}">${pctText(m.recall)}</td>
+      <td class="num" style="color:${m.cross_misfires ? "var(--red)" : "var(--muted)"}">${m.cross_misfires}</td>
+      <td class="num" style="color:${m.missed ? "var(--yellow)" : "var(--muted)"}">${m.missed}</td>
+      <td class="num" style="color:${m.false_triggers ? "var(--red)" : "var(--muted)"}">${pctText(m.false_trigger_rate)}</td></tr>`
+  ).join("");
+  el.innerHTML = `<div class="panel">
+    <h3>🎯 Trigger-Eval · Bridge (Session-Modell, kein API-Key)</h3>
+    <p class="hint">Pro Skill generierte Positiv-/Negativ-Prompts, beurteilt mit allen Descriptions gleichzeitig im Kontext — so misst sich echtes Auslösen inkl. Verwechslungen.</p>
+    <div class="ov">
+      <div><div class="n" style="color:${selColor}">${pctText(ov.selection_accuracy)}</div><div class="l">Auswahl-Treffsicherheit</div></div>
+      <div><div class="n" style="color:${falseColor}">${pctText(ov.false_trigger_rate)}</div><div class="l">Fehlauslöse-Rate</div></div>
+      <div><div class="n">${ov.total_positive || 0} / ${ov.total_negative || 0}</div><div class="l">Pos./Neg.-Prompts</div></div>
+    </div>
+    <table>
+      <thead><tr><th>Skill</th><th style="text-align:right">Recall</th><th style="text-align:right">Cross-Misfire</th><th style="text-align:right">Verpasst</th><th style="text-align:right">Fehlauslöse</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+// Token-budget advice based on the usage profile and the estimated per-invocation
+// body cost. High-frequency skills should keep the body lean (tokens are paid every
+// call); rarely used skills can afford completeness.
+function usageAdvice(tc, profile) {
+  const per = tc ? (tc.per_invocation_tokens || 0) : 0;
+  if (profile === "frequent") {
+    if (per > CONFIG.leanThreshold)
+      return { lean: true, text: `Häufig genutzter Skill mit großem Body (~${per} Tokens pro Aufruf). Body verschlanken und Details in reference.md / examples.md auslagern — die laden nur bei Bedarf. Token-Ersparnis wiegt hier schwerer als ein paar Score-Punkte.` };
+    return { lean: false, text: `Häufig genutzt, Body bereits schlank (~${per} Tokens pro Aufruf) — so lassen.` };
+  }
+  return { lean: false, text: `Die ~${per} Body-Tokens pro Aufruf fallen kaum ins Gewicht. Vollständigkeit und Score vor Kürze.` };
+}
+function usageLabel(profile) { return profile === "frequent" ? "häufig / täglich" : "selten / Planung"; }
+function currentProfile() { const s = document.getElementById("usage"); return s ? s.value : "rare"; }
+
+// Build a copy-paste improvement brief to hand to an LLM. Works in both modes:
+// without LLM it uses the deterministic dimension labels; with LLM it also folds
+// in the per-category notes the model attached.
+function buildBrief(data, profile) {
+  const q = data.quality_assessment || {};
+  const score = q.score ?? 0;
+  const [, tierName] = tierFor(score);
+  const cats = q.categories || [];
+  const weak = cats.filter(c => c.earned < c.max);
+  const strong = cats.filter(c => c.earned >= c.max);
+  const sec = data.risk_assessment || {};
+  const hasLlm = weak.some(c => c.notes);
+
+  const tc = data.token_cost;
+  const advice = usageAdvice(tc, profile);
+  const red = data.redundancy;
+  const trig = triggerability(data.skill_meta || {});
+
+  const lines = [];
+  lines.push(`Improve the Claude Code skill "${data.skill_name}".`);
+  lines.push("");
+  lines.push(`Quality score: ${score}/100 (${tierName}). Security: ${sec.severity || "?"} / ${sec.recommendation || "?"}.`);
+  if (tc) {
+    lines.push(`Context cost (estimated): ~${tc.always_on_tokens} always-on (frontmatter) + ~${tc.per_invocation_tokens} per invocation (body) + ~${tc.on_demand_tokens} on-demand (supporting docs).`);
+    lines.push(`Usage profile: ${usageLabel(profile)}. Token guidance: ${advice.text}`);
+  }
+  if (red && red.duplication_pct >= CONFIG.redundancyWarnPct) {
+    const files = Object.entries(red.by_file).sort((a, b) => b[1] - a[1]).map(([f, p]) => `${f} (${p}%)`).join(", ");
+    lines.push(`Redundancy: ~${red.duplication_pct}% of the SKILL.md body is duplicated verbatim in ${files || "supporting docs"} — consolidate or remove rather than repeat.`);
+  }
+  if (trig.missing.length) {
+    lines.push(`Triggering (${trig.score}/100): the description/when_to_use is missing — ${trig.missing.join("; ")}. Add these so the skill fires reliably and not by accident.`);
+  }
+  lines.push("");
+  if (weak.length) {
+    lines.push("Dimensions to improve (earned/max):");
+    for (const c of weak) {
+      const label = (c.items && c.items[0] && c.items[0].label) || "";
+      lines.push(`- ${c.name} (${c.earned}/${c.max}): ${label}`);
+      if (c.notes) lines.push(`  Tip: ${c.notes}`);
+    }
+  } else {
+    lines.push("All dimensions at full marks — only minor polish needed.");
+  }
+  lines.push("");
+  if (strong.length) {
+    lines.push("Already strong (preserve): " + strong.map(c => c.name).join(", ") + ".");
+    lines.push("");
+  }
+  lines.push("Task: rewrite SKILL.md (and add any supporting files flagged above, e.g. examples.md / reference.md) to raise the weak dimensions while preserving the skill's intent and behaviour.");
+  lines.push("Principle: keep it minimal — include only essential requirements, and do not duplicate content that already lives in reference.md / examples.md or external docs. Redundant or comprehensive-for-its-own-sake context measurably hurts agent performance; concise and specific beats long.");
+  if (profile === "frequent" && advice.lean)
+    lines.push("Constraint: this is a frequently-invoked skill — keep the SKILL.md body lean and move detail into on-demand supporting files; do not raise the score at the cost of per-invocation tokens.");
+  lines.push("Note: this score measures structural authoring quality only — not functional correctness. Re-run skillspector-quality afterwards to confirm the score improved.");
+  return { text: lines.join("\n"), hasLlm, advice };
+}
+
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c])); }
+
+// ---- wiring ---------------------------------------------------------------
+const dz = document.getElementById("dropzone");
+dz.addEventListener("click", () => document.getElementById("folderInput").click());
+["dragover","dragenter"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add("drag"); }));
+["dragleave","drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove("drag"); }));
+dz.addEventListener("drop", async e => { handleSkills(await skillsFromDataTransfer(e.dataTransfer)); });
+
+document.getElementById("pickFolder").addEventListener("click", e => { e.stopPropagation(); document.getElementById("folderInput").click(); });
+document.getElementById("pickZip").addEventListener("click", e => { e.stopPropagation(); document.getElementById("zipInput").click(); });
+document.getElementById("folderInput").addEventListener("change", e => { handleSkills(skillsFromFolderInput(e.target.files)); e.target.value = ""; });
+document.getElementById("zipInput").addEventListener("change", async e => {
+  const skills = [];
+  const loose = [];
+  for (const f of e.target.files) {
+    if (f.name.toLowerCase().endsWith(".zip")) skills.push({ name: f.name.replace(/\.zip$/i, ""), files: [{ path: f.name, file: f }] });
+    else loose.push({ path: f.name, file: f });
+  }
+  if (loose.length) skills.push({ name: await deriveSkillName(loose), files: loose });
+  handleSkills(skills); e.target.value = "";
+});
+clearBtn.addEventListener("click", () => {
+  results.length = 0; cardsEl.innerHTML = "";
+  renderSummary(); renderCollisions(); updateTrigBtn();
+  document.getElementById("trigeval").className = "trigeval";
+  document.getElementById("trigeval").innerHTML = "";
+  clearBtn.style.display = "none";
+});
+document.getElementById("trigEvalBtn").addEventListener("click", runTriggerEval);
+
+// Re-render existing results when the usage profile changes (recomputes token advice + brief).
+function rerenderAll() { cardsEl.innerHTML = ""; for (const data of results) cardsEl.prepend(renderResult(data)); renderSummary(); renderCollisions(); }
+document.getElementById("usage").addEventListener("change", () => { if (results.length) rerenderAll(); });
+</script>
+</body>
+</html>
