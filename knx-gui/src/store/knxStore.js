@@ -23,11 +23,20 @@ export function createKnxStore() {
   let _state = null;
   let _buffer = null;
   let _koMap = null;
+  let _hwMap = null;
+  let _deviceById = null;
   let _originalGaIds = null;
   let _originalLinkSnapshot = null; // Map<comObjectRefId, groupAddressIds[]>
 
-  function enrichLinks(links, koMap) {
-    return links.map((link) => ({ ...link, ko: resolveKo(koMap, link.comObjectRefId) }));
+  function enrichLinks(links) {
+    return links.map((link) => {
+      const hardware2ProgramRefId =
+        _deviceById?.get(link.deviceId)?.hardware2ProgramRefId ?? null;
+      return {
+        ...link,
+        ko: resolveKo(_koMap, link.comObjectRefId, { hwMap: _hwMap, hardware2ProgramRefId }),
+      };
+    });
   }
 
   return {
@@ -37,13 +46,18 @@ export function createKnxStore() {
      */
     async load(buffer) {
       _buffer = buffer;
-      const [parsed, koMap] = await Promise.all([parseKnxproj(buffer), parseAppXmls(buffer)]);
+      const [parsed, { koMap, hwMap }] = await Promise.all([
+        parseKnxproj(buffer),
+        parseAppXmls(buffer),
+      ]);
       _koMap = koMap;
+      _hwMap = hwMap;
+      _deviceById = new Map(parsed.devices.map((d) => [d.id, d]));
       _originalGaIds = new Set(parsed.groupAddresses.map((g) => g.id));
       _originalLinkSnapshot = new Map(
         parsed.links.map((l) => [l.comObjectRefId, [...l.groupAddressIds]]),
       );
-      _state = { ...parsed, links: enrichLinks(parsed.links, koMap) };
+      _state = { ...parsed, links: enrichLinks(parsed.links) };
       return _state;
     },
 
@@ -79,13 +93,17 @@ export function createKnxStore() {
             : l,
         );
       } else {
+        const hardware2ProgramRefId =
+          _deviceById?.get(deviceId)?.hardware2ProgramRefId ?? null;
         links = [
           ..._state.links,
           {
             comObjectRefId,
             deviceId,
             groupAddressIds: [gaId],
-            ko: _koMap ? resolveKo(_koMap, comObjectRefId) : null,
+            ko: _koMap
+              ? resolveKo(_koMap, comObjectRefId, { hwMap: _hwMap, hardware2ProgramRefId })
+              : null,
           },
         ];
       }

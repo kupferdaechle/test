@@ -64,7 +64,7 @@ export default function DevicePanel({ devices, links, selectedKo, onSelectKo, on
                           }
                         >
                           <span className="ko-name">
-                            {link.ko?.name || link.ko?.text || link.comObjectRefId}
+                            {link.ko?.text || link.ko?.name || link.comObjectRefId}
                           </span>
                           {link.ko?.dpt && (
                             <span className="ko-dpt">{link.ko.dpt}</span>

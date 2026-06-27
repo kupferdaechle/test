@@ -12,11 +12,14 @@ const suite = existsSync(fixture) ? describe : describe.skip;
 
 suite('appXmlParser (BV Neil Richter)', () => {
   let koMap;
+  let hwMap;
   let model;
 
   beforeAll(async () => {
     const buf = readFileSync(fixture);
-    [koMap, model] = await Promise.all([parseAppXmls(buf), parseKnxproj(buf)]);
+    const [appXmls, parsed] = await Promise.all([parseAppXmls(buf), parseKnxproj(buf)]);
+    ({ koMap, hwMap } = appXmls);
+    model = parsed;
   });
 
   it('E2E-APP-01: finds ComObjects from vendor app-XMLs', () => {
@@ -33,8 +36,15 @@ suite('appXmlParser (BV Neil Richter)', () => {
   });
 
   it('E2E-APP-03: resolveKo maps at least some link RefIds to a KO definition', () => {
+    const deviceById = new Map(model.devices.map((d) => [d.id, d]));
     const refIds = model.links.map((l) => l.comObjectRefId);
-    const resolved = refIds.map((r) => resolveKo(koMap, r)).filter(Boolean);
+    const resolved = refIds
+      .map((r, i) => {
+        const deviceId = model.links[i].deviceId;
+        const hardware2ProgramRefId = deviceById.get(deviceId)?.hardware2ProgramRefId ?? null;
+        return resolveKo(koMap, r, { hwMap, hardware2ProgramRefId });
+      })
+      .filter(Boolean);
 
     if (resolved.length === 0) {
       // Diagnostic so we know what format to target
