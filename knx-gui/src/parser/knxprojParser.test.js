@@ -39,16 +39,23 @@ suite('knxprojParser (real BV Neil Richter project)', () => {
   });
 
   it('AC-04.1: parses links from the real Links="GA-x" attribute (not Send/Receive)', () => {
-    // The real format stores links as a space-separated attribute, short GA ids.
+    // The real format stores links as a space-separated attribute.
+    // A ComObjectInstanceRef with two GAs must yield ONE link with a 2-item array.
     expect(model.links.length).toBeGreaterThan(0);
-    // A ComObjectInstanceRef with two GAs must yield two links.
-    const multi = model.links.filter((l) => l.comObjectRefId === 'MD-1_M-5_MI-1_O-2-23_R-1');
-    expect(multi.map((l) => l.groupAddressId).sort()).toEqual(['GA-1259', 'GA-1397']);
+    const link = model.links.find((l) => l.comObjectRefId === 'MD-1_M-5_MI-1_O-2-23_R-1');
+    expect(link).toBeTruthy();
+    expect(link.groupAddressIds).toHaveLength(2);
+    expect(link.groupAddressIds).toEqual(
+      expect.arrayContaining(['P-0531-0_GA-1259', 'P-0531-0_GA-1397']),
+    );
   });
 
   it('resolves short link GA ids to full group-address ids', () => {
-    // Link "GA-1257" must resolve to the GroupAddress whose id ends in "_GA-1257".
-    const link = model.links.find((l) => l.groupAddressId === 'GA-1257');
-    expect(link.resolvedGroupAddressId).toBe('P-0531-0_GA-1257');
+    // All resolved ids must match the full id pattern, never the short GA-x form.
+    for (const link of model.links) {
+      for (const gaId of link.groupAddressIds) {
+        expect(gaId).toMatch(/^P-[0-9A-F]+-0_GA-\d+$/);
+      }
+    }
   });
 });
