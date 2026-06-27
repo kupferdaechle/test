@@ -66,6 +66,19 @@ client and monolith modules obey encapsulation — no module reaches into anothe
 communicating only through the shared store or public module APIs. A shared store is allowed.
 Escalate a circular dependency in any mode.
 
+### Step 5b: Define the Target Data Model
+Before producing any overview, define the typed object each consuming unit — UI, downstream
+service, or test — must receive from this system. This is the integration contract: the shape
+that end-to-end tests will assert against, and the anchor that makes "done" verifiable.
+
+Write it as a concrete JSON schema or TypeScript interface. Every field must be named and typed.
+Every module that contributes to the object must be named. A module whose output does not appear
+in this model is either unused or its requirement is not yet captured — resolve the gap before
+continuing. Record it in `pipeline.json` under `architecture.target_data_model`.
+
+Example: `{ projectId: string, devices: [{id, physicalAddress, name, kos: [{id, name, dpt}]}],
+groupAddresses: [{id, address, name, dpt}], links: [{comObjectRefId, deviceId, groupAddressIds}] }`
+
 ### Step 6: Produce the Overview and Contract Map
 Generate the high-level project overview and the dependency map from the template in
 [reference.md](reference.md#output-contract). The overview states each service's lone
@@ -82,8 +95,9 @@ signs off each service's responsibility and its dependencies.
 All phases share one state file, `pipeline.json`, at the root of the project under
 development. Read the `lastenheft` section that planning wrote — stop and report if it is
 missing, since you cannot decompose requirements that do not exist. Write your output under
-the `architecture` key, and write each service's bounded_context back into the matching
-requirement so the assignment stays linked. Preserve every other section untouched.
+the `architecture` key, including the `target_data_model` from Step 5b. Write each
+service's bounded_context back into the matching requirement so the assignment stays linked.
+Preserve every other section untouched.
 
 ## Escalation Rules
 
@@ -103,3 +117,23 @@ architect who must resolve it, and record the open boundary as an unresolved dec
 Carry the planning model recommendation forward and refine it: use Opus for Enterprise
 decomposition where boundary mistakes are systemic, and Sonnet for Foundation and
 Professional. Record the model used so the next phase inherits the rationale.
+
+## Next Step Recommendation
+
+After the human gate passes, output this block verbatim (fill in the brackets):
+
+```
+NEXT STEP
+Skill:  contract-manager
+Model:  [Sonnet for specification authoring on all tiers | Opus only for Enterprise
+         with complex event topology]
+Reason: [one sentence — e.g. "Contracts are mechanical to write once boundaries are
+         clear; Sonnet is fast and precise enough."]
+```
+
+If the architecture mode is modular monolith (client or Foundation in-process), add:
+
+```
+NOTE: contract-manager will record N/A for this mode. Proceed directly to
+coding after the human gate; skip to code-review-scorer per module.
+```

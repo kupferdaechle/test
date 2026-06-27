@@ -29,7 +29,11 @@ A change earns up to 100 points across four weighted axes. Security and requirem
 outweigh style, because wrong or unsafe code that reads well is still wrong.
 
 - **Security (30)** — findings from the security scan, weighted by severity.
-- **Requirements Coverage (30)** — each acceptance criterion traced to a passing test.
+- **Requirements Coverage (30)** — each acceptance criterion traced to a passing test,
+  **and** the module's output is reachable via at least one integration test that crosses
+  a module boundary (unit tests alone cannot score full points here). A module that passes
+  all its unit tests but is not wired into the end-to-end flow defined in the Lastenheft's
+  Definition of Done loses a minimum of 10 points on this axis.
 - **Code Quality (20)** — structure, naming, duplication, and complexity of the code.
 - **Maintainability (20)** — cognitive complexity, coupling within the architecture's limit,
   and test coverage on business logic.
@@ -45,6 +49,9 @@ Some defects cannot be outweighed by a high total. Apply these before the total 
   change broke the interface every other agent depends on.
 - **Security floor** — if the Security axis scores below half its weight, the change cannot
   auto-accept regardless of total; it routes to a human at best.
+- **Integration gap** — if the module has no integration test tracing it to the target data
+  model from `architecture.target_data_model`, the change cannot auto-accept. It routes to
+  human review with the note: "Module is an island — wire it into the end-to-end flow first."
 
 These overrides are the defense against a change that games the total while hiding a real risk.
 
@@ -80,3 +87,21 @@ agent knows exactly which condition lacks a passing test.
 Use Sonnet to compute the score on Foundation and Professional changes, where the rubric is
 mechanical. Use Opus on Enterprise changes and on any security-vetoed review, where judging the
 blast radius of a finding rewards deeper reasoning. Record the model used in the verdict.
+
+## Next Step Recommendation
+
+After each verdict, output this block verbatim (fill in the brackets):
+
+```
+NEXT STEP
+Decision: [auto-accept | human-review | auto-reject]
+If auto-accept:
+  Skill:  [next unreviewed module → code-review-scorer | all modules done → ship/deploy]
+  Model:  Sonnet (or Opus if next module is security-critical)
+If human-review:
+  Action: present to tech lead; await sign-off before proceeding
+If auto-reject:
+  Skill:  back to coding agent (cycle [N] of 2)
+  Model:  Sonnet for implementation fixes
+  Fix:    [name the failing axis and the concrete action required]
+```

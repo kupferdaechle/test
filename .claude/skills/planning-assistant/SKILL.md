@@ -86,6 +86,14 @@ criterion phrased so a downstream agent can verify it against code. This
 structured contract is the interface every later phase consumes — leave the
 bounded_context field null for architecture-decomposition to populate.
 
+**End-to-End Definition of Done**: Add one sentence describing the minimal
+scenario that proves the whole system works — from real input to expected output,
+crossing every module boundary. Example: "A user imports a real .knxproj, sees
+all devices and group addresses, creates a new address, and exports a file that
+re-imports identically." Architecture and review phases must trace their work
+back to this sentence. A system where all unit tests pass but this sentence
+cannot be demonstrated is not done.
+
 ### Step 7: Human Gate
 Present the full document. Ask the consultant and the customer to confirm
 each section explicitly. Do not mark the gate passed until both sign off.
@@ -120,3 +128,18 @@ Include in every Lastenheft output:
 - **Phase 1 (Architecture)**: recommend Opus for Enterprise tier;
   Sonnet is sufficient for Foundation and Professional
 - **Coding phase**: Sonnet for implementation; Opus for security-critical services
+
+## Next Step Recommendation
+
+After the human gate passes, output this block verbatim (fill in the brackets):
+
+```
+NEXT STEP
+Skill:  architecture-decomposition
+Model:  [Opus if Enterprise tier | Sonnet if Foundation or Professional]
+Reason: [one sentence — e.g. "Enterprise boundary mistakes are systemic; Opus
+         reasons more carefully across a large requirement set."]
+```
+
+Never omit this block. It is the handoff signal for the next agent or human
+picking up the pipeline.

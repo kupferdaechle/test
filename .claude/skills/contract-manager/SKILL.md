@@ -99,3 +99,15 @@ consumers affected, and the migration each must make.
 Use Sonnet for specification authoring across all tiers; the work is precise but not
 open-ended. Reserve Opus for resolving a breaking amendment on an Enterprise system, where the
 blast radius across consumers needs careful reasoning. Record the model used.
+
+## Next Step Recommendation
+
+After the freeze and human gate pass, output this block verbatim (fill in the brackets):
+
+```
+NEXT STEP
+Skill:  code-review-scorer  (invoke after each module is pushed)
+Model:  [Sonnet for Foundation/Professional | Opus for Enterprise or security-vetoed changes]
+Reason: [one sentence — e.g. "Scoring is mechanical against the rubric; Sonnet is
+         sufficient unless a security finding needs blast-radius reasoning."]
+```
